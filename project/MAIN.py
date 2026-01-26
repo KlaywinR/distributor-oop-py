@@ -1,0 +1,1579 @@
+from datetime import datetime, date, timedelta
+from abc import abstractmethod, ABC
+from enum import Enum
+from typing import Optional
+
+#! classe abstrata de Client -> serve de base para o desenvolvimento da mesma.
+class AbstractClient(ABC):
+    
+    @abstractmethod
+    def buy(self, product, quantity_pallets, unit_value_pallet):
+        pass
+
+    @abstractmethod
+    def client_category(self):
+        pass
+    
+    @abstractmethod
+    def summary_client(self):
+        pass
+    
+    @abstractmethod
+    def volume_discount(self, quantity_pallets):
+        pass
+
+    @abstractmethod
+    def add_loyalty_points(self, buy_value):
+        pass
+    
+    @abstractmethod
+    def claim_points(self):
+        pass
+    
+    @abstractmethod
+    def check_promotion(self, buy_value):
+        pass
+    
+    @abstractmethod
+    def rate_service(self, stars):
+        pass
+    
+    @abstractmethod 
+    def client_status(self):
+        pass
+
+#!interface class client
+class LoyaltySystem(ABC):
+    
+    @abstractmethod
+    def claim_points(self):
+        pass
+    
+    @abstractmethod
+    def add_loyalty_points(self, buy_value):
+        pass
+    
+#! mixin class client
+class ReviewMixin:
+    def rate_service(self, stars):
+        descriptions = {
+            5: "Atendimento Excelente",
+            4: "Atendimento Bom",
+            3: "Bem Razoável",
+            2: "Atendimento Ruim",
+            1: "Péssimo"
+        }
+        
+        if stars not in descriptions:
+            return "Avaliação Inválida, ultilize a escala de 1 a 5 para a avaliação do atendimento."
+        
+        self._reviews.append(stars)
+        return f"Obrigado, a sua avaliação foi: {stars} estrelas ({descriptions[stars]})"
+
+class Client(AbstractClient, LoyaltySystem, ReviewMixin): 
+    def __init__(self, name, cnpj, id_client, credit_limit, costumer_preferences, client_status, registration_date, address, phone, client_type, loyalty_points=0):
+        self.__name = name
+        self.__cnpj = cnpj
+        self.__id_client = id_client
+        self.__credit_limit = credit_limit
+        self.__costumer_preferences = costumer_preferences
+        self.__client_status = client_status
+        self.__registration_date = registration_date
+        self.__address = address
+        self.__phone = phone
+        self.__client_type = client_type
+        self.__loyalty_points = loyalty_points
+        self.__purchase_history = []
+        self._reviews = []
+        
+    @property
+    def name(self):
+        return self.__name
+    
+    @name.setter
+    def name(self, value):
+        if not value:
+            raise ValueError("Nome Inválido")
+        self.__name = value
+    
+    @property
+    def credit_limit(self):
+        return self.__credit_limit
+
+    def buy(self, product, quantity_pallets: int, unit_value_pallet: float) -> float:
+        
+        #v. bruto
+        gross_value = quantity_pallets * unit_value_pallet
+       
+       #desconto acerca do volume 
+        discount_rate = self.volume_discount(quantity_pallets)
+        discount_value = gross_value * discount_rate
+        
+        #v. final c desconto add.
+        final_value = gross_value - discount_value
+
+        self.__purchase_history.append({
+                "Product": product.name,
+                "Quantity": quantity_pallets,
+                "Final Value": final_value,
+                "Date": datetime.now()
+        })
+        
+        if quantity_pallets > 1:
+            self.add_loyalty_points(final_value)
+        return final_value
+    
+    def volume_discount(self, quantity_pallets):
+        if quantity_pallets >= 75:
+            return 0.30
+    
+        elif quantity_pallets >= 50:
+            return 0.25
+    
+        elif quantity_pallets >= 20:
+            return 0.15
+        
+        elif quantity_pallets >= 10:
+            return 0.05
+        else: 
+            return 0
+    
+#adiciona pontos acumulativos de acordo com o valor da conta; neste quesito é creditado pontos uando o cliente faz compras acima de 1 pallet de produtos.
+    def add_loyalty_points(self, buy_value):
+        points = int(buy_value // 10)
+        self.__loyalty_points += points
+    
+#método de resgate de pontos acumulativos; acima de 0; mostra a quantidade de pontos arrecadados/ou não pelo cliente 
+    def claim_points(self):
+        if self.__loyalty_points <= 0:
+            return "O Cliente não possui pontos para resgatar"
+        
+        points_redeemed = self.__loyalty_points
+        self.__loyalty_points = 0
+        
+        return f"O cliente arrecadou {points_redeemed} pontos com sucesso!"
+    
+ #cliente checa se recebe/aplica preco promocional no valor da compra; caso possua desconto ou frete grátis ele é informado automaticamente.
+    def check_promotion(self, buy_value):
+        discount = 0
+        
+        if self.__loyalty_points >= 500:
+            discount = 0.20  
+        elif self.__loyalty_points >= 200:
+            discount = 0.10
+        
+        value_with_discount = buy_value - (buy_value * discount)
+        
+        return{
+            "Desconto Aplicado": f"{int(discount * 100)}%",
+            "Valor Final": value_with_discount
+        }
+        
+#mecanização de categoria do cliente; é levado em conta o valor que ele deixa no caixa da distribuidora
+# (criado com dicionários)
+    def client_category(self):
+        
+        DIAMOND = 1000000
+        GOLD = 300000
+        SILVER = 100000
+        
+        #calculo do faturamento total
+        total_revenue = sum(p["Final Value"] for p in self.__purchase_history)
+        
+        if total_revenue >= DIAMOND:
+            return {
+                "Categoria Atual": "Diamante",
+                "Nivel Comercial": "Top Account",
+                "Descrição da Categoria": "Este cliente possui visão estratégica e altos valores em faturamento",
+                "Benefícios": [
+                    "Possui desconto exclusivo",
+                    "Atendimento prioritário",
+                    "Crédito Estendido",
+                    "Negociação personalizada com a distribuidora"
+                ]
+                
+            }
+        elif total_revenue >= GOLD:
+            return {
+                "Categoria Atual": "Ouro",
+                "Nivel Comercial": "Alta performance",
+                "Descrição da Categoria": "Cliente com excelente volume de compras",
+                "Benefícios": [
+                    "Desconto Diferenciado",
+                    "Crédito Facilitado pela distribuidora"
+                ]
+            }
+            
+        elif total_revenue >= SILVER:
+            return {
+                "Categoria Atual": "Prata",
+                "Nivel Comercial": "Em crescimento",
+                "Descrição da Categoria": "Este cliente possui ótimo potencial de crescimento",
+                "Benefícios": [
+                    "Programa de fidelidade padrão"
+                ]
+            }
+            
+        else:
+            return {
+                "Categoria Atual": "Bronze",
+                "Nivel Comercial": "Ainda iniciando",
+                "Descrição da Categoria": "Este cliente está em fase inicial de relacionamento",
+                "Benefícios": [
+                    "Condições comerciais básicas"
+                ]
+            }
+             
+    def summary_client(self):
+        return {
+            "Name": self.__name,
+            "Tipo de Cliente": self.__client_type,
+            "Categoria": self.client_category(),
+            "Pontos de Fidelidade": self.__loyalty_points,
+            "Total de Compras" : self.__purchase_history
+        }
+        
+#verifica se o clinete está ativoo conforme a data presebte na lista de compras:
+    def client_status(self):
+        
+        if self.__client_status == "BLOQUEADO":
+            return "Cliente Inativo no Sistema"
+        
+        if not self.__purchase_history:
+            return "Cliente Ativo no Sistema"
+        
+        last_purchase_date = self.__purchase_history[-1]["Date"]
+        days = (datetime.now() - last_purchase_date).days
+
+        return "Cliente Ativo" if days <= 90 else "Cliente Inativo"
+  
+class AbstractEmployee(ABC):
+    """
+    A classe abstrata Employee é tida como base comum para todo tipo de funcionário.
+    Logo, garante todas as regras de funcionamento, estrutura e comportamento. Onde, funciona sem a necessidade de instâncias diretas. 
+    """
+    
+    @abstractmethod
+    def register_entry(self):
+        pass
+    
+    """
+    Regra de registro da saída do funcionário
+    """
+    @abstractmethod
+    
+    def register_exit(self):
+        pass
+    
+    """
+    Regra do cálculo matemático das horas extras do funcionário, é levada em conta a atual jornada trabalhista de oito horas (8).
+    """
+    @abstractmethod
+    def calculate_overtime(self, day_type="Normal"):
+        pass 
+    
+    @abstractmethod
+    def request_vacation(self):
+        pass
+    
+    @abstractmethod
+    def request_raise(self,percentage):
+        pass
+    
+    @abstractmethod
+    def status_employee(self):
+        pass
+    
+class ClockMixin:
+    """
+    O Mixin acima encapsula o controle de ponto, onde permite o reuso em diferentes tipos de funcionários.
+    O mesmo não é acoplado ao modelo final da classe.
+    """
+    
+    def register_entry(self):
+        if getattr(self,"_entry_time", None) is not None:
+            return "Sua entrada já foi registrada..."
+        self._entry_time = datetime.now()
+        return "A entrada foi regiistrada com sucesso!."
+    
+    
+    def register_exit(self):
+        if getattr(self,"_entry_time", None):
+            return "A entrada não foi registrada"
+        
+        #guarda o horario atual como o de saida
+        exit_time = datetime.now()
+        worked_hours = (exit_time - self._entry_time).total_seconds() / 3600
+        
+        self._hours_worked += worked_hours
+        if worked_hours > 8:
+            self._overtime += worked_hours - 8
+            
+        self._entry_time = None
+        return "A Saída foi registrada"      
+        
+class Employee(AbstractEmployee, ClockMixin):
+    def __init__(self, name, shift, cpf, salary, id_employee, departament, status_employee, admission_date, contract_type, position, meta_monthly, overtime, hours_worked):
+        self.__name = name 
+        self.__shift = shift
+        self.__id_employee = id_employee
+        self.__departament = departament
+        self.__salary = salary 
+        self.__cpf = cpf
+        self.__status_employee = status_employee
+        self.__admission_date = admission_date
+        self.__contract_type = contract_type
+        self.__position = position
+        self.__meta_monthly = meta_monthly
+        self._overtime = overtime
+        self.__hours_worked = hours_worked
+        self._entry_time = None
+
+    @property
+    def name(self):
+        return self.__name 
+    
+    @name.setter
+    def name(self, value):
+        if not value:
+            raise ValueError("Nome Inválido")
+        self.__name = value
+
+    @property
+    def salary(self):
+        return self.__salary
+    
+    @salary.setter
+    def salary(self, value):
+        if value < 0:
+            raise ValueError("Salário Inválido")
+        self.__salary = value
+  
+    
+    @property
+    def meta_monthly(self):
+        return self.__meta_monthly
+
+    def status_employee(self):
+        return self.__status_employee
+    
+    def review_stock(self, stock: list[dict]) -> list[dict]:
+
+        reviewed_stock  = []
+        
+        for item in stock:
+            reviewed_stock.append({
+                "product": item["product"],
+                "pallet_quantity": item["pallet_quantity"],
+                "storage_type": item["storage_type"],
+                "condition": item["condition"]
+            })
+                    
+        return reviewed_stock
+               
+#calculo da hora extra com base no tipo de dia trabalhado - normal, domingo o feriado:
+#é considerado aspenas as horas que passam da jornada de 8 horas e aplica o adicional de 50 ou 100
+
+    def calculate_overtime(self, day_type = "Normal"):
+        standard_daily_hours = 8 #jor. padrao
+        
+        if self.__hours_worked <= standard_daily_hours:
+            return 0.0
+    
+        extra_hours = self.__hours_worked - standard_daily_hours
+        hourly_value = self.__salary / 200
+        
+        overtime_rate = 2.0  if day_type.lower() in ("Feriado", "Domingo") else 1.5 
+            
+        overtime_value = extra_hours * hourly_value * overtime_rate
+        return round(overtime_value, 2)
+            
+#? deve ter um método do GERENTE p aprovar as ferias:
+
+    def request_vacation(self):
+        if self.__status_employee.lower() == "ferias":
+            return "O funcionário se encontra em recesso."
+  
+        vacation_request = {
+            "employee": self.__name,
+            "employee_id": self.__id_employee,
+            "departament": self.__departament,
+            "request_date": datetime.now(),
+            "status": "Aguardando a avaliação do Gerente"
+        }
+        
+        return {
+            "mensagem": "Olá, a sua solicitação de férias foi registrada com sucesso!",
+            "despacho": "O pedido se encontra na análise do Gerente",
+            "detalhes": vacation_request
+        }
+
+    def request_raise(self, percentage):
+        if percentage <= 0:
+            return "Este percentual de aumento é inválido."
+        request_raise = {
+            "employee": self.__name,
+            "employee_id": self.__id_employee,
+            "current_salary": self.__salary,
+            "request_percentage": percentage,
+            "request_date": datetime.now(),
+            "status": "Aguardando a avaliação do Gerente"
+        }
+    
+    #regra: acima de 15% precisa de aprovaçãoo do gerente:
+        if percentage > 15:
+            request_raise["Observação"] = "Aumentos acima de 15% necessitam da análise da Gerência"
+        return {
+            "mensagem": "Olá, o seu pedido de aumento salarial foi registrada com sucesso!",
+            "despacho": "O pedido se encontra na análise do Gerente",
+            "detalhes": request_raise
+        }
+     
+class Seller(Employee): 
+    def __init__(self, name, shift, cpf, salary,id_employee,departament,status_employee,admission_date,contract_type,position,meta_monthly, overtime, hours_worked, commision_percentual):
+        
+        super().__init__(name, shift, cpf, salary, id_employee,
+                         departament, status_employee, admission_date,
+                         contract_type, position, meta_monthly, overtime, 
+                         hours_worked)
+        
+        self.__costumers_served = []
+        self.__pallets_sold = 0
+        self.__quantity_invites = []
+        self.__comission_percentual = commision_percentual
+        self.__sales_made = []
+        
+    @property
+    def meta_monthly(self):
+        return super().meta_monthly
+    
+    @meta_monthly.setter
+    def meta_monthly(self, value):
+        if value <= 0:
+            raise ValueError("A meta deve ser maior do que zero")
+        self._Employee__meta_monthly = value
+        
+    @property
+    def pallets_sold(self):
+        return self.__pallets_sold
+        
+    def attend_costumer(self, customer):
+        self.__costumers_served.append(customer)
+        
+    def make_sale(self, costumer, product, quantity):
+        sale = {
+            "costumer":costumer,
+            "product":product,
+            "quantity":quantity
+        }
+        self.__sales_made.append(sale)
+        
+    def add_pallets_sold(self, quantity):
+        if quantity <= 0:
+            raise ValueError("A quantidade é inválida")
+        self.__pallets_sold += quantity
+
+    def follow_costumer(self, client):
+        return f"Acompanhamento realizado com o cliente {client}"
+    
+    def apply_costumer_benefi(self, client):
+        return f"O benefício de fidelidade foi aplicado ao cliente {client}"
+    
+    def negotiate_price(self, discount):
+        if discount < 0 or discount > 0.15:
+            raise ValueError("O desconto deve encontrar-se entre 0% e 15%")
+        return f"Desconto de {discount * 100:.0f}% aprovado!"
+    
+    def verify_meta_monthly(self):
+        return self.meta_monthly <= self.__pallets_sold
+    
+    def calculate_comissions(self):
+        return self.__pallets_sold * self.__comission_percentual
+    
+    def register_service(self, client):
+        self.__quantity_invites.append(client)
+        
+    def request_evaluation(self, note):
+        if note < 1 or note > 5:
+            raise ValueError(" A nota se encontra em uma escala de 1 a 5.")
+        
+    def respond_to_complaint(self, client):
+        return f"Reclamação do cliente {client} foi respondida"
+    
+    def sumary_sales(self):
+        """
+        Função: Retornar um sumário de vendas com o número de clientes atendidos,
+                número de vendas realizadas, pallets vendidos e o calcular a comissão
+                acerca das ações do funcionário.
+        """
+        return {
+        "clientes_atendidos": len(self.__costumers_served),
+        "vendas_realizadas": len(self.__sales_made),
+        "paletes_vendidos": self.__pallets_sold,
+        "comissao": self.calculate_comissions()
+    }
+
+#!ver isso ainda
+    #def see_costumer_credit(self, client):
+        #if client
+
+class PalletInterface(ABC):
+    """
+    Define tudo o que o pallet deve saber fazer.
+    """
+    
+    @abstractmethod
+    def add_products(self, quantity: int) -> None:
+        pass
+    
+    @abstractmethod
+    def remove_products(self, quantity: int) -> None:
+        pass
+    
+    @abstractmethod
+    def calculate_wheight(self) -> float:
+        pass
+    
+    @abstractmethod
+    def is_full(self) -> bool:
+        pass
+    
+    @abstractmethod
+    def is_empty(self)-> bool:
+        pass
+
+class AbstractPallet(PalletInterface):
+    """"
+    Lógica base para a classe Pallet
+    """
+    def __init__(self, id_pallet, product,max_capacity, max_wheight):
+        self._id_pallet = id_pallet
+        self._product = product
+        self._max_capacity = max_capacity
+        self._max_wheight = max_wheight
+        self._current_weight = 0.0
+        self._quantity_products =  0.0
+        self._input_date = date.today()
+       
+class StatusMixin:
+    """
+    Serve para controlar o status do pallet.
+    """
+    
+    def block(self):
+        self._status = "Bloqueado"
+        
+    def activate(self):
+        self._status = "Ativo"
+        
+    def is_active(self)-> bool:
+        return self._status == "Ativo"
+        
+class Pallet(StatusMixin, AbstractPallet):
+    def __init__(self, id_pallet, product, max_capacity, max_wheight, location_in_stock):
+        super().__init__(id_pallet, product, max_capacity, max_wheight)
+        self._location_in_stock = location_in_stock
+        self._status = "Ativo"
+    
+    @property
+    def quantity_products(self) -> int:
+        return self._quantity_products
+    
+    @quantity_products.setter
+    def quantity_products(self, value) -> int:
+        if value < 0:
+            raise ValueError("Mensagem do Sistema: A quantidade inválida")
+        self._quantity_products = value
+        
+    @property
+    def location_in_stock(self) -> str:
+        return self._location_in_stock 
+    
+    @location_in_stock.setter
+    def location_in_stock(self, value: str) -> None:
+        if not value or not isinstance(value, str):
+            raise ValueError("Mensagem do Sistema: Localização Inválida")
+        self._location_in_stock = value
+    
+    @property
+    def status(self) -> str:
+        return self._status
+    
+    @status.setter
+    def status(self, value: str) -> None:
+        allowed_status = {"Ativo", "Bloqueado", "Shipped"}
+        if value not in allowed_status:
+            raise ValueError(f"Mensagem do Sistema: Status Inválido {value}")
+        self._status = value
+      
+    @property
+    def current_wheight(self) -> float:
+        return self._current_weight
+    
+    @current_wheight.setter
+    def current_wheight(self, value: float) -> None:
+        if value < 0:
+            raise ValueError("Mensagem do Sistema: O atual peso não pode ser negativo")
+        if value > self._max_wheight:
+            raise ValueError("Mensagem do Sistema: O peso atual excede o limite do pallet")
+        self._current_weight = value 
+         
+    def add_products(self, quantity: int) -> None:
+       if quantity <= 0:
+           raise ValueError("Mensagem do Sistema: A quantidade inválida")
+       if self._quantity_products + quantity > self._max_capacity:
+           raise ValueError("Mensagem do Sistema: A capacidade mínima excedida")
+       
+       self._quantity_products += quantity
+       self._current_weight = self.calculate_weight()
+       
+    def remove_products(self, quantity: int)-> None:
+       if quantity <= 0:
+           raise ValueError("Mensagem do Sistema: A quantidade inválida")
+       
+       if quantity > self._quantity_products:
+           raise ValueError("Mensagem do Sistema: Quantidade Insuficiente no Pallet")
+       
+       self._quantity_products -= quantity
+       self._current_weight = self.calculate_weight()
+       
+    def calculate_weight(self) -> float:
+        return self._quantity_products * self._product._wheight_per_unit
+    
+    def is_full(self) -> bool:
+        return self._quantity_products == self._max_capacity
+    
+    def is_empty(self) -> bool:
+        return self._quantity_products == 0
+    
+    def str(self) -> str:
+        return (
+            f"Pallet: {self._id_pallet}"
+            f"Produto: {self._product}"
+            f"Quantidade: {self._quantity_products}"
+            f"Peso do Pallet: {self._current_weight:.2f} quilos"
+            f"Status do Pallet: {self._status}"
+        )
+
+class Promocional(ABC):  
+    
+    @abstractmethod
+    def add_promotion(self, new_price: float) -> None:
+        pass
+    
+    @abstractmethod
+    def remove_promotion(self):
+        pass
+    
+    @abstractmethod
+    def has_promotion(self)-> bool:
+        pass
+    
+    @abstractmethod
+    def current_price(self) -> float:
+        pass
+    
+class ProductStatus(Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    BLOCKED = "blocked"
+    DISCONTINUED = "discontinued"
+    
+class Product(Promocional):
+    def __init__(self, name, category,unit_measure,brand,
+                 wheight_per_unit,pallets_quantity,barcode,
+                 total_units,cost_price, quantity, supplier, 
+                 min_stock,origin,units_per_pallet, min_pallets, 
+                 unit_price, expiration_date = date , 
+                 dimensions= tuple[float, float, float], 
+                 status: ProductStatus = ProductStatus.ACTIVE):
+        self._name = name 
+        self._category = category
+        self._brand = brand
+        self._barcode = barcode
+        self._supplier = supplier
+        self._quantity = quantity
+        self._origin = origin
+        self._expiration_date = expiration_date
+        self._dimensions = dimensions
+        self._min_stock = min_stock
+        self._total_units = total_units
+        self._wheight_per_unit = wheight_per_unit
+        self._status = status
+        self._units_per_pallet = units_per_pallet 
+        self._min_pallets = min_pallets
+        self._pallets_quantity = pallets_quantity
+        self._cost_price = cost_price
+        self._unit_measure = unit_measure
+        self._unit_price = unit_price
+        self._promotion_price: Optional[float] = None
+        
+    @property
+    def barcode(self):
+        return self._barcode
+    
+    @property
+    def units_per_pallet(self):
+        return self._units_per_pallet
+    
+    @property
+    def name(self):
+        return self._name 
+        
+    def available_pallets(self):
+        return self._pallets_quantity
+    
+    def promotion_price(self) ->  Optional[float]:
+        return self._promotion_price
+    
+    def total_units_stock(self) -> int:
+        total = self._pallets_quantity * self._units_per_pallet
+        print(f"Informação: total de unidades no estoque: {total}")
+        return total
+    
+    def total_stock_value(self) -> float:
+        total = self.current_price() * self.total_units_stock()
+        print(f"Informação: Valor total do estoque: {total:.2f}")
+        return total
+    
+    def total_weight(self) -> float:
+        total = self.total_units_stock() * self._wheight_per_unit
+        print(f"Informação: Peso total do estoque: {total:.2f} {self._unit_measure}")
+        return total
+    
+    def add_pallets(self, pallets: int) -> None:
+        
+        if self._status != ProductStatus.ACTIVE:
+            raise PermissionError(
+                "Mensagem de Erro: O produto não está ativo."
+            )
+        if pallets <= 0:
+            raise ValueError(
+                "Mensagem de Erro: A quantidade de pallets deve ser positiva."
+            )
+        self._pallets_quantity += pallets
+        
+        print (
+            f"Estoque em: +{pallets} pallets adicionados | "
+            f"Pallets Atuais: {self._pallets_quantity}"
+        )
+    def reserve_pallets(self, quantity: int):
+        if quantity > self._pallets_quantity:
+            raise ValueError("Estoque insuficiente")
+        self._pallets_quantity -= quantity
+
+        
+    def remove_pallets(self, pallets: int) -> None:
+        
+        if pallets <= 0:
+            raise ValueError("Mensagem de Erro: Quantidade Inválida")
+        if pallets > self._pallets_quantity:
+            raise ValueError("Mensagem de Erro: Estoque insuficiente de pallets para esta operação.")  
+        if self.is_expired():
+            raise PermissionError( "Mensagem de Erro: O produto está vencido.")
+        
+        self._pallets_quantity -= pallets
+        
+        print (
+            f"Saída Registrada: {pallets} pallets removidos!"
+            f"Pallets Restantes: {self._pallets_quantity}"
+        )
+        
+    def needs_restock(self) -> bool:
+        needs = self._pallets_quantity <= self._min_pallets
+        print(f"Reposição Necessária: {'SIM' if needs else 'NÃO'}")
+        return needs
+    
+    def is_expired(self) -> bool:
+        
+        expired = self._expiration_date < date.today()
+        print(f"Status de Validade: {'EXPIRADO' if expired else 'VÁLIDO'}")
+        return expired
+
+    def block(self) -> None:
+        self._status = ProductStatus.BLOCKED
+        print("O produto se encontra bloqueado")
+        
+    def activate(self) -> None:
+        self._status = ProductStatus.ACTIVE
+        print("O produto se enconta ativo")
+        
+    def discontinued(self) -> None:
+        self._status = ProductStatus.DISCONTINUED
+        print("O produto está descontinuado..")
+        
+    def is_active(self) -> bool:
+        return self._status == ProductStatus.ACTIVE
+
+    def profit_per_unit(self) -> float:
+        profit = self._unit_price - self._cost_price
+        print(f"Informação do Sistema: Lucro por unidade: {profit:.2f}")
+        return profit
+    
+    def profit_per_pallet(self) -> float:
+        profit = self.profit_per_unit() * self._units_per_pallet
+        print(f"Informação do Sistema: Lucro por pallet: {profit:.2f}")
+        return profit
+    
+    def add_promotion(self, new_price):
+        if new_price <= self._cost_price:
+            raise ValueError("Informação do Sistema: O preço promocional está abaixo do custo")
+        self._promotion_price = new_price
+        print(f"Promoção Aplicada: Novo Preço: R$ {new_price:.2f}")
+    
+    def remove_promotion(self) -> None:
+        self._promotion_price = None
+        print("Informação do Sistema: A promoção foi removida.")
+         
+    def has_promotion(self) -> bool:
+        return self._promotion_price is not None
+        
+    def current_price(self) -> float:
+        return self._promotion_price if self.has_promotion() else self._unit_price
+
+    def __str__(self) -> str:
+        return (
+        f"\nInformações Gerais do Produto'\n"
+        f"Produto: {self._name}\n"
+        f"Categoria: {self._category}\n"
+        f"Marca: {self._brand}\n"
+        f"Código de Barras: {self._barcode}\n"
+        f"Fornecedor: {self._supplier}\n"
+        f"Origem: {self._origin}\n"
+        f"Status: {self._status.name}\n"
+        
+        f"\n---- Informações sobre o estoque ----\n"
+        f"Pallets em Estoque: {self._pallets_quantity}\n"
+        f"Unidades por Pallet: {self._units_per_pallet}\n"
+        f"Total de Unidades: {self.total_units_stock()}\n"
+        f"Estoque Mínimo (Pallets): {self._min_pallets}\n"
+        f"Reposição Necessária: {'SIM' if self.needs_restock() else 'NÃO'}\n"
+        
+        f"\n--- Informações sobre o preço do produto ----\n"
+        f"Preço de Custo: R$ {self._cost_price:.2f}\n"
+        f"Preço Unitário: R$ {self._unit_price:.2f}\n"
+        f"Preço Atual: R$ {self.current_price():.2f}\n"
+        f"Em Promoção: {'SIM' if self.has_promotion() else 'NÃO'}\n"
+        f"Lucro por Unidade: R$ {self.profit_per_unit():.2f}\n"
+        f"Lucro por Pallet: R$ {self.profit_per_pallet():.2f}\n"
+        
+        f"\n--- Informações sobre a Validade do Produto ---\n"
+        f"Data de Validade: {self._expiration_date}\n"
+        f"Produto Vencido: {'SIM' if self.is_expired() else 'NÃO'}\n"
+        
+        f"\n--- Informações sobre as Dimensões do Produto ---\n"
+        f"Dimensões (C x L x A): {self._dimensions}\n"
+        f"Peso por Unidade: {self._wheight_per_unit:.2f} {self._unit_measure}\n"
+        f"Peso Total em Estoque: {self.total_wheight():.2f} {self._unit_measure}\n"
+        f"-----------------------------------------------------------\n"
+    )
+
+class StockItem:
+    def __init__(self, product: Product, pallets:int):
+        self.product = product
+        self.pallets = pallets
+    
+    def total_units(self) -> int:
+        return self.pallets * self.product.units_per_pallet
+    
+    def total_value(self):
+        return self.total_units() * self.product.current_price()
+
+class StockInterface(ABC):
+    
+    @abstractmethod
+    def add_pallet(self, product: Product, quantity: int):
+        pass
+    
+    @abstractmethod
+    def del_pallet(self, product: Product, quantity: int):
+        pass
+    
+    @abstractmethod
+    def view_status(self):
+        pass
+    
+    @abstractmethod
+    def total_stock_value(self):
+        pass
+    
+    @abstractmethod
+    def list_pallets(self):
+        pass
+    
+class BaseStock(StockInterface):
+    def __init__(self, total_capacity: int):
+        self._total_capacity = total_capacity
+        self._pallet_list: list[StockItem] = []
+
+class MovementMixin:
+    
+    def register_movement(self, description: str):
+        data = datetime.now().strftime("%d/%m/%Y %H: %M")
+        if not hasattr(self, "_movement_history"):
+            self._movement_history.append(f"[{data}] {description}")
+        
+class Stock(BaseStock, MovementMixin):
+    def __init__(self, total_capacity: int, responsible: str, name: str):
+        super().__init__(total_capacity)
+        self._responsible = responsible
+        self._movement_history = []
+        self._status = "Vazio"
+        self._name = name 
+        
+    @property
+    def responsible(self):
+        return self._responsible
+    
+    @responsible.setter
+    def responsible(self, name: str):
+        self._responsible = name 
+        
+    def add_pallet(self, product: Product, pallets: int):
+        
+        if not product.is_active():
+            raise ValueError("Informação do Sistema: O produto está inativo")
+        if product.is_expired():
+            raise PermissionError("Informação do Sistema: O produto está vencido")
+        
+        for item in self._pallet_list:
+            if item.product.barcode == product.barcode:
+                item.pallets += pallets
+                self.register_movement(f"Entrada de {pallets} pallets do produto {product.name}")
+             
+                self._update_status()
+                return 
+        
+        self._pallet_list.append(StockItem(product,pallets))   
+        self.register_movement( f"Entrada de {pallets} pallets do produto {product.name}")
+        
+        self._update_status()
+          
+    def del_pallet(self,product: Product, pallets: int):
+        for item in self._pallet_list:
+            if item.product.barcode == product.barcode:
+                if pallets > item.pallets:
+                    raise ValueError("Informação do Sistema: Estoque insuficiente")
+                
+                item.pallets -= pallets
+                self.register_movement(f"Informação do Sistema: Removidos {pallets} pallets do produto {product.name}")
+                    
+                if item.pallets == 0:
+                    self._pallet_list.remove(item)
+                
+                self._update_status()
+                return
+            raise ValueError("O produto não foi encontrado no estoque")
+    
+    #pallet listaddo no atacado
+    def list_pallets(self) -> list[StockItem]:
+        return self._pallet_list.copy()
+    
+    def search_product_id(self, product_id):
+        return next(
+            (item for item in self._pallet_list if item.product.barcode == product_id),
+            None
+        )
+    
+    def total_stock_value(self):
+        return sum(item.total_value() for item in self._pallet_list)
+        
+    #built ins
+    def view_status(self):
+        return self._status
+    
+    def _update_status(self):
+        total_pallets = sum(item.pallets for item in self._pallet_list)
+        if total_pallets == 0:
+            self._status = "VAZIO"
+        elif total_pallets < self._total_capacity * 0.3:
+            self._status = "BAIXO" 
+        else:
+            self._status = "CHEIO"
+              
+    def __str__(self):
+        return (
+            f"-- Informações Gerais do Estoque --\n"
+            f"Estoque: {self._name}\n"
+            f"Responsável(a): {self.responsible}\n"
+            f"Status: {self._status}\n"
+            f"Total Pallets: {sum(i.pallets for i in self._pallet_list)}\n"
+            f"Valor total do estoque: {self.total_stock_value():.2f}"
+        )
+            
+class InterfacePurchase(ABC):
+    
+    @abstractmethod
+    def calculate_total(self):
+        pass
+    
+    @abstractmethod
+    def finalize_purchase(self):
+        pass
+    
+    @abstractmethod
+    def cancel_purchase(self):
+        pass
+    
+    @abstractmethod
+    def reserve_pallets(self):
+        pass
+    
+class AbstractPurchase(InterfacePurchase, ABC):
+    def __init__(self, client, seller, product, quantity_pallets):
+        self._client = client
+        self._seller = seller
+        self._product = product
+        self._quantity_pallets = quantity_pallets
+        self._date = datetime.now()
+        self._status = "PENDING"
+        self._total_value = 0.0
+        
+class MixinPurchase:
+    def register_log(self, message: str):
+        if not hasattr(self, "_logs"):
+            self._logs = []
+        self._logs.append(f"[{datetime.now().strftime('%d/%m/%Y %H:%M')}] {message}")
+            
+class Purchase(AbstractPurchase, MixinPurchase):
+    def __init__(self, client, seller, product, quantity_pallets: int, unit_value_pallet: int):
+        super().__init__(client, seller, product, quantity_pallets)
+        self._logs = []
+        self._payment_method = None
+        
+    @property
+    def status(self):
+        return self._status
+
+    @property
+    def total_value(self):
+        return self._total_value
+    
+    def _apply_promotion(self) -> float:
+        return self._product.current_price()
+    
+    def _validate_stock(self):
+        avaiLable = self._product.available_pallets()
+        if self._quantity_pallets > avaiLable:
+            raise ValueError(f"Estoque Insuficiente." f"Disponivel: {avaiLable} pallets ao todo")
+                
+    def _validate_credit_limit(self):
+        total = self.calculate_total()
+        if total > self._client.credit_limit:
+            raise PermissionError("Limite de crédito do cliente excedido!")
+                  
+    def calculate_taxes(self, value: float) -> float:
+        tax_rate = 0.12
+        return value * tax_rate
+    
+    def calculate_total(self):
+        
+        unit_price = self._apply_promotion()
+        
+        gross_value = unit_price * self._quantity_pallets
+        
+        discount_rate = self._client.volume_discount(self._quantity_pallets)
+        discount_value = gross_value * discount_rate
+    
+        subtotal = gross_value - discount_value
+        taxes = self.calculate_taxes(subtotal)    
+        final_value = subtotal + taxes
+        
+        self._total_value = final_value
+        self.register_log(
+            f"Valor Bruto Calculado: {gross_value:.2f}"
+            f"Valor com desconto: R$ {discount_rate * 100: .0f}%"
+            f"Impostos: {taxes:.2f}" 
+            f"Valor final: {final_value: .3f}"
+        )
+        return final_value
+    
+    def simulate_purchase(self):
+        
+        self._validate_stock()
+        unit_price = self._apply_promotion()
+        
+        gross = unit_price * self._quantity_pallets
+        discount = gross * self._client.volume_discount(self._quantity_pallets)
+        subtotal = gross - discount
+        taxes = self.calculate_taxes(subtotal)
+      
+        return {
+            "valor bruto": gross,
+            "desconto": discount,
+            "valor_final": subtotal + taxes
+        }
+       
+    def reserve_pallets(self):
+        self._validate_stock()
+        self._product.reserve_pallets(self._quantity_pallets)
+        self.register_log("Pallets Reservados")
+        
+    def set_payment_method(self, method: str):
+        allowed = ["PIX", "CREDIT", "DEBIT", "BOLETO"]
+        if method not in allowed:
+            raise ValueError("Método de pagamento inválido")
+        self._payment_method = method
+        self.register_log(f"Método de pagamento escolhido pelo cliente: {method}")
+    
+    def finalize_purchase(self):
+        if self.status != "PENDING":
+            raise RuntimeError("A compra já foi processada")
+        self._validate_stock()
+        self.calculate_total()
+        self._validate_credit_limit()
+        
+    #como a compra ja foi atualizada; o estoque atualiza:
+        self._product.remove_pallets(self._quantity_pallets)
+        
+        #o cliente faz a compra
+        self._client.buy(
+            self._product,
+            self._quantity_pallets,
+            self._product.current_price()
+        )
+        #o seller registra a vensa:
+        self._seller.make_sale(
+            self._client,
+            self._product,
+            self._quantity_pallets
+        )
+        self._seller.add_pallets_sold(self._quantity_pallets)
+        self._status = "COMPLETED"
+        self.register_log("Compra feita com sucesso!")
+        
+        return self.total_value
+    
+    def mark_as_approved(self):
+        self._status = "APPROVED"
+            
+    def cancel_purchase(self):
+        if self._status == "COMPLETED":
+            raise RuntimeError("Compra ja finalizada, não pode ser cancelada!")
+        self._status = "CANCELED"
+        self.register_log("Compra Cancelada")
+        
+    def issue_invoice(self):
+        if self._status != "COMPLETED":
+         raise RuntimeError("Compra não finalizada")
+
+        invoice = {
+        "cliente": self._client.name,
+        "produto": self._product.name,
+        "quantidade_pallets": self._quantity_pallets,
+        "valor": self._total_value,
+        "pagamento": self._payment_method,
+        "data": self._date.strftime("%d/%m/%Y")
+    }
+
+        self.register_log("Nota fiscal emitida")
+        return invoice
+
+    def __str__(self):
+        return (
+            f"Compra do Cliente: {self._client.name}\n"
+            f"Produto: {self._product.name}\n"
+            f"Quantidade de Pallets: {self._quantity_pallets}\n"
+            f"Status: {self.status}\n"
+            f"Valor: {self._total_value}\n"
+        )
+
+class DistributorInterface(ABC):
+#! posssui princípio dip + abstração + interface
+    
+    @abstractmethod
+    def register_client(self, client):
+        pass
+    
+    @abstractmethod
+    def register_employee(self, employee):
+        pass
+    
+    @abstractmethod
+    def register_stock(self, stock):
+        pass
+    
+    @abstractmethod
+    def process_purchase(self, purchase):
+        pass
+    
+    @abstractmethod
+    def dispatch_delivery(self, delivery):
+        pass
+    
+class AbstractDistributor(DistributorInterface, ABC):
+    
+    def __init__(self, name: str, cnpj: str):
+        self._name = name 
+        self._cnpj = cnpj
+        self._clients = []
+        self._employees = []
+        self._stocks = []
+        self._purchases = []
+        self._deliveries =  []
+    
+class AuditMixin:
+#! principio SRP 
+    def _log(self, message:  str):
+        if not hasattr(self, "_audit_logs"):
+            self._audit_logs = []
+        self._audit_logs.append(
+               f"[{datetime.now().strftime('%d/%m/%Y %H:%M')}] {message}"
+        )
+        
+class ReportMixin:
+#! principio SRP   
+    def total_revenue(self):
+        return sum(p.total_value for p in self._purchases if p.status == "COMPLETED")
+    
+    def active_clients(self):
+        return [c for c in self._clients if c.client_status() == "Cliente Ativo"]
+    
+class Distributor(ReportMixin, AuditMixin, AbstractDistributor):
+    
+    def register_client(self, client):
+        self._clients.append(client)
+        self._log(f"Cliente {client.name} registrado com sucesso!")
+        
+    def register_employee(self, employee):
+        self._employees.append(employee)
+        self._log(f"Funcionário {employee.name} registrado com sucesso!")
+        
+    def register_stock(self, stock):
+        self._stocks.append(stock)
+        self._log(f"Estoque {stock._name} registrado com sucesso!")
+        
+    def process_purchase(self, purchase):
+        purchase.finalize_purchase()
+        self._purchases.append(purchase)
+        self._log("Compra registrada com sucesso!")
+        
+    def dispatch_delivery(self, delivery):
+        delivery.start_delivery()
+        self._deliveries.append(delivery)
+        self._log("Entrega despachada com sucesso!")
+        
+#! met privado:
+    def __validate_employee(self, employee):
+        return hasattr(employee, "register_entry")
+    
+    def __validate_client(self, client):
+        return hasattr(client, "buy")
+    
+#! conc. duck
+    def notify(self, entity):
+        entity.receive_notification("Informação do Sistema: O Sistema foi atualizado")
+        
+    #! built - ins
+    
+    def __str__(self):
+          return f"Distribuidora {self._name} | Clientes: {len(self._clients)}"
+#? ver os metodos privados 
+
+class InterfaceManager(ABC):
+    
+    @abstractmethod
+    def approve_purchase(self, purchase):
+        pass
+    
+    @abstractmethod
+    def approve_discount(self, discount):
+        pass
+    
+    @abstractmethod
+    def request_report(self, distributor):
+        pass
+    
+    @abstractmethod
+    def manage_emplloyee(self, employee, action: str):
+        pass
+     
+class AbstractManager(InterfaceManager, ABC):
+    def __init__(self, name, registration):
+        self._name = name 
+        self._registration = registration
+
+#! mixin de gerente
+class AuthorizationMixin:
+    def _authorize(self, reason: str):
+        print(f"[AUTORIZADO] {reason}")
+    
+class Manager(AuthorizationMixin, AbstractManager):
+   
+    def approve_purchase(self, purchase: Purchase):
+       if purchase.total_value > 50000:
+           self._authorize("INFORMAÇÃO DO SISTEMA: Compra de Alto Valor")
+           purchase.mark_as_approved()
+       
+    def approve_discount(self, client, percentage):
+        if percentage <= 15:
+            self._authorize("INFORMAÇÃO DO SISTEMA: Desconto padrão aprovado")
+            if hasattr(client, "apply_discount"):
+                client.apply_discount(percentage)
+        else: 
+            raise PermissionError("INFORMAÇÃO DO SISTEMA: Desconto acima do limite permitido")
+    
+    def request_report(self, distributor: Distributor):
+        return {
+            "faturamento": distributor.total_revenue(),
+            "clientes_ativos": len(distributor.active_clients())
+        }
+        
+    def manage_employee(self, employee, action: str):
+        if action  == "PROMOTE" and hasattr(employee, "promote"):
+            employee.promote()
+        elif action == "DIMISS" and hasattr(employee, "dimiss"):
+            employee.dimiss()
+
+    
+class AbstractDriver(ABC):
+    
+    @abstractmethod
+    def can_operate(self) -> bool:
+        pass
+
+    @abstractmethod
+    def assign_delivery(self, delivery):
+        pass
+    
+    @abstractmethod
+    def complete_delivery(self, delivery):
+        pass
+
+class AvailabilityMixin:
+    def is_available(self)-> bool:
+        return self._status == "ATIVO" and self.can_operate()
+ 
+class Driver(AvailabilityMixin, AbstractDriver):
+    
+    MAX_OCCURRANCES = 5
+
+    def __init__(self, id_driver, name, cpf, cnh_category, cnh_expiration,
+                 max_capacity_pallets, region):
+        
+        self.__id_driver = id_driver
+        self._name = name 
+        self.__cpf = cpf
+        self.__cnh_category =  cnh_category
+        self.__cnh_expiration = cnh_expiration
+        self._status  = "ATIVO"
+        
+        self.__max_capacity_pallets =  max_capacity_pallets
+        self.__region = region
+        
+        self.__deliveries_assigned = []
+        self.__routes_history = []
+        self.__infractions = []
+        self.__occurances = []
+        self._score = 100
+        
+    @property
+    def name(self):
+        return self._name 
+    
+    @property
+    def status(self):
+        return self._status
+    
+    def cnh_is_valid(self) -> bool:
+        return self.__cnh_expiration >= date.today()
+    
+    def can_operate(self) ->  bool:
+        return (
+            self._status == "ATIVO"
+            and self.cnh_is_valid()
+            and len(self.__occurances) < self.MAX_OCCURRANCES
+        )
+        
+    def assign_delivery(self, delivery):
+        if not self.can_operate():
+            raise PermissionError("O motorista não pode operar")
+        self.__deliveries_assigned.append(delivery)
+          
+    def accept_delivery(self, delivery):
+        delivery.start_delivery()
+                
+    def reject_delivery(self, delivery):
+        self.register_occurance("A entrega foi recusada")
+
+    def complete_delivery(self, delivery):
+        delivery.complete()
+        self.__routes_history.append(delivery)
+        
+    def register_occurance(self, description):
+        self.__occurances.append(description)
+        self.__update_score()
+    
+    def _update_score(self):
+        self._score -= 10
+        if self._score <= 50:
+            self._block_driver()
+    
+    def _block_driver(self):
+        self._status = "BLOQUEADO"
+    
+    def __len__(self):
+        return len(self.__deliveries_assigned)
+    
+    def __str__(self):
+        return f"Motorista: {self._name}, Status: {self._status}"
+ 
+class DeliveryInterface(ABC):
+    
+    @abstractmethod
+    def start_delivery(self):
+        pass
+    
+    @abstractmethod
+    def finish_delivery(self):
+        pass
+    
+    @abstractmethod
+    def cancel_delivery(self, reason: str):
+        pass
+    
+    @abstractmethod
+    def status(self) -> str:
+        pass
+
+class AbstractDelivery(DeliveryInterface, ABC):
+    
+    def __init__(self, id_delivery):
+        self._id_delivery = id_delivery
+        self._created_at = datetime.now()
+        self._started_at = None
+        self._finished_at = None
+        self._status = "PENDING"
+        self._occurrences = []
+        
+    def status(self) -> str:
+        return self._status
+    
+    def _register_occurance(self, description: str):
+        self._occurrences.append({
+            "description": description,
+            "date": datetime.now()
+        })
+    
+    def get_occurrances(self):
+        return self._occurrances  
+    
+    @abstractmethod
+    def calculate_cost(self) -> float:
+        pass
+    
+    @abstractmethod
+    def notify_costumer(self, message: str):
+        pass
+
+class DelayControlMixin:
+    
+    def is_delayed(self) -> bool:
+        if not  self._finished_at:
+            return False
+        if not hasattr(self, "_estimated_time"):
+            return False
+        return datetime.now() > self._estimated_time
+  
+class Delivery(DelayControlMixin, AbstractDelivery):
+    
+    STATUS_PENDING = "PENDING"
+    STATUS_ASSIGNED = "ASSIGNED"
+    STATUS_IN_TRANSIT = "IN_TRANSIT"
+    STATUS_DELIVERED = "DELIVERED"
+    STATUS_DELAYED = "DELAYED"
+    STATUS_CANCELED = "CANCELED"
+    
+    BASE_PRICE = 20.0
+    PRICE_PER_KM = 2.5
+    EXPRESS_FEE = 30.0
+    DELAY_PENALTY = 15.0
+    
+    def __init__(self, id_delivery, estimated_hours, distance_km ,express=False):
+        super().__init__(id_delivery)
+        self._estimated_time = datetime.now() + timedelta(hours= estimated_hours)
+        self._receiver_name = None
+        self._proof = None
+        self._driver = None
+        self._distance_km = distance_km
+        self._express = express
+        self._timeline = []
+        self._register_event("Entrega Criada")
+           
+    def assign_driver(self, driver):
+        if self._status != self.STATUS_PENDING:
+            raise ValueError("O motorista só pode ser solcitado quando existir entregas pendentes..")
+        self._driver = driver 
+        self._status = self.STATUS_ASSIGNED
+        self._register_event("Motorista Atribuido")
+        
+    def calculate_cost(self):
+        cost = self.BASE_PRICE + self._distance_km * self.PRICE_PER_KM
+        
+        if self._express:
+            cost += self.EXPRESS_FEE
+        if self.is_delayed():
+            cost += self.DELAY_PENALTY
+        return round(cost, 2)
+        
+    def can_start(self) -> bool:
+        return self._status == self.STATUS_ASSIGNED and self._driver is not None
+
+    def can_finish(self) -> bool:
+        return self._status == self.STATUS_IN_TRANSIT
+    
+    def can_cancel(self) -> bool:
+        return self._status not in (self.STATUS_DELIVERED, self.STATUS_CANCELED)
+    
+    def is_active(self) -> bool:
+        return self._status in (
+            self.STATUS_ASSIGNED,
+            self.STATUS_IN_TRANSIT,
+            self.STATUS_DELAYED
+        )
+        
+    def _register_event(self, description: str):
+        self._timeline.append({
+            "event": description,
+            "date": datetime.now()
+        })
+        
+    def get_timeline(self):
+        return self._timeline
+    
+    def start_delivery(self):
+      if not self.can_start():
+          raise PermissionError("A entrega não pode ser inciada")
+      
+      self._status = self.STATUS_IN_TRANSIT
+      self._started_at = datetime.now()
+      self._register_event("Entrega Iniciada")
+      self.notify_costumer("Sua encomenda saiu para a entrega")
+      
+    def finish_delivery(self):
+      if not self.can_finish():
+          raise PermissionError("Mensagem do Sistema: A entrega não pode ser finalizada!")
+      
+      self._status = self.STATUS_DELIVERED
+      self._finished_at = datetime.now()
+      self._register_event("Entrega Finalizada")
+      self.notify_costumer("Entrega Realizada com sucesso!")
+      
+    def cancel_delivery(self, reason: str):
+        if not self.can_cancel():
+            raise PermissionError("A sua entrega não pode ser cancelada")
+
+        self._status = self.STATUS_CANCELED
+        self._register_occurance(reason)
+        self._register_event("A sua entrega foi cancelada")
+        self.notify_costumer(f"Entrega cancelada: {reason}")
+        
+    def notify_costumer(self, message: str):
+        print(f"[CLIENTE] Entrega {self._id_delivey}: {message}")
+        
+    def __len__(self):
+        return len(self._occurances)
+    
+    def __str__(self):
+        return f"Entrega {self._id_delivey} - Status {self._status}"
+            

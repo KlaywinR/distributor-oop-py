@@ -2,22 +2,24 @@ import streamlit as st
 from datetime import date
 import sys
 import os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from project.models.pallet import Pallet
 from project.models.mannager import Manager
 
 
-if "estoque" not in st.session_state:
-    st.session_state.estoque = []
+for key in ["estoque", "produtos", "reservas", "clientes", "funcionarios", "entregas"]:
+    if key not in st.session_state:
+        st.session_state[key] = []
 
-if "produtos" not in st.session_state:
-    st.session_state.produtos = []
-
-if "reservas" not in st.session_state:
-    st.session_state.reservas = []
+if "responsavel_estoque" not in st.session_state:
+    st.session_state.responsavel_estoque = "João Silva" 
     
-
-manager = Manager("Joao Silva", 123456)
+if "capacidade_total" not in st.session_state:
+    st.session_state.capacidade_total = 10
+    
+manager = Manager("João Lucas Silva", 562662)
 
 st.set_page_config(
     page_title="SISTEMA DE GESTÃO COMERCIAL E LOGÍSTICA DE DISTRIBUIDORA",
@@ -26,98 +28,33 @@ st.set_page_config(
 
 menu = st.sidebar.radio(
     "Menu",
-    ["Início", "Área do Cliente", "Área de Produtos", "Estoque", "Pedidos", "Gerência Geral"]
+    ["Início", "Área do Cliente", "Nossos Produtos", "Nosso Estoque", "Nossos Pedidos", "Nossa Gerência Geral"]
 )
 
-
 def start_page():
-    st.subheader("Início")
+    st.subheader("Início do Sistema")
     st.write("Tela inicial do sistema")
-    
-def product_page():
-    st.subheader("Gestão de Produtos")
 
-    st.write("Produtos cadastrados:")
-    for p in st.session_state.produtos:
-        st.write(f"- {p['nome']} | R${p['preco']} | Quant: {p['quantidade']}")
-
-    if "mostrar_form" not in st.session_state:
-        st.session_state.mostrar_form = False
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        if st.button("Cadastrar Produto"):
-            st.session_state.mostrar_form = True
-
-    with col2:
-        if st.button("Adicionar Preço Promocional"):
-            for p in st.session_state.estoque:
-                p.preco_promocional = p.preco_unitario * 0.9  # 10% de desconto
-            st.success("Preço promocional aplicado automaticamente!")
-
-    if st.session_state.mostrar_form:
-        with st.form("form_produto"):
-            name = st.text_input("Nome do produto:")
-            price = st.number_input("Preço unitário:")
-            quantity = st.number_input("Quantidade:")
-
-            submitted = st.form_submit_button("Cadastrar")
-            if submitted:
-                st.session_state.produtos.append({
-                    'nome': name,
-                    'preco': price,
-                    'quantidade': quantity
-                })
-                st.success(f"Produto '{name}' cadastrado com sucesso!")
-
-
-
+#! deve se colocar a funcção cliente aqui: 
 def client_page():
     st.subheader("Clientes")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
+#!____________________________________________
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
+#! ---- funcção produto ________________________
+def product_page():
+    st.subheader("Gestão de Produtos")
+    st.write("Produtos cadastrados:")
+    for p in st.session_state.produtos:
+        st.write(f"- {p['nome']} | R${p['preco']} | Quant: {p['quantidade']}")
+#!__________________________________________
 
-    with col1:
-        if st.button("🛒Comprar"):
-            st.info("Funcionalidade de compra em desenvolvimento.")
-
-    with col2:
-        if st.button("📊Desconto por volume"):
-            st.info("Funcionalidade de desconto em desenvolvimento.")
-
-    with col3:
-        if st.button("⭐Adicionar Pontos Fidelidade"):
-            st.info("Funcionalidade de pontos fidelidade em desenvolvimento.")
-
-    with col4:
-        if st.button("🎁Reivindicar Pontos"):
-            st.info("Funcionalidade de resgate de pontos em desenvolvimento.")
-
-    with col5:
-        if st.button("🔍Checar Promoções"):
-            st.info("Funcionalidade de promoções em desenvolvimento.")
-
-    with col6:
-        if st.button("💬Avaliar serviço"):
-            st.info("Funcionalidade de avaliação em desenvolvimento.")
-
-   
-    
-def orders_page():
-    st.subheader("Pedidos")
-    st.write("Tela de pedidos")
-    
+#! ----- função estoque -------
 def stock_page():
-    
-    st.subheader("Estoque")
-    st.write("Acompanhamento do estoque")
+    st.subheader("Nosso Estoque")
 
-    st.subheader("📦 Estoque")
     col1, col2, col3, col4 = st.columns(4)
 
-    # Adicionar Pallet
     with col1:
         if st.button("Adicionar Pallet"):
             with st.form("form_add_pallet"):
@@ -125,87 +62,175 @@ def stock_page():
                 quantidade = st.number_input("Quantidade de pallets:", min_value=1)
                 preco = st.number_input("Preço unitário do pallet:", min_value=0.0, format="%.2f")
                 validade = st.date_input("Data de validade do pallet:")
-
                 submitted = st.form_submit_button("Adicionar")
+
                 if submitted:
                     novo_pallet = Pallet(nome, quantidade, preco, validade)
                     if novo_pallet.is_active():
                         st.session_state.estoque.append(novo_pallet)
-                        st.success(f"Pallet '{nome}' adicionado! Quantidade: {quantidade}")
-                    else:
-                        st.error(f"Pallet '{nome}' está vencido e não foi adicionado.")
-                    st.info(f"Total de pallets no estoque: {len(st.session_state.estoque)}")
-
-    # Remover Pallet
+                        st.success(f"{quantidade} pallet(s) de '{nome}' adicionado(s) no estoque!")
+                        st.info(f"Total de pallets no estoque: {len(st.session_state.estoque)}")
+                else:
+                        st.error(f"O pallet '{nome}' está vencido e não foi adicionado.")
+                    
     with col2:
         if st.button("Remover Pallet"):
-            nomes_estoque = [p.nome for p in st.session_state.estoque]
-            if nomes_estoque:
+            if st.session_state.estoque:
+                nomes_estoque = [p.nome for p in st.session_state.estoque]
                 nome_remover = st.selectbox("Escolha o pallet para remover:", nomes_estoque)
-                if st.button("Confirmar remoção"):
+                confirm = st.checkbox("Confirmar remoção?")
+                if confirm:
                     st.session_state.estoque = [p for p in st.session_state.estoque if p.nome != nome_remover]
                     st.success(f"Pallet '{nome_remover}' removido!")
                     st.info(f"Total de pallets no estoque: {len(st.session_state.estoque)}")
-            else:
+        else:
                 st.warning("Não há pallets no estoque para remover.")
 
-    # Mostrar Estoque
     with col3:
-        if st.button("Mostrar Estoque"):
+        if st.button("Mostrar Estoque Completo"):
             if st.session_state.estoque:
-                total_valor = sum(p.quantidade * p.preco_unitario for p in st.session_state.estoque)
+                total_valor = 0
                 for p in st.session_state.estoque:
                     st.write(f"- {p.nome} | Quant: {p.quantidade} | Preço Unit: R${p.preco_unitario:.2f} | Ativo: {p.is_active()}")
-                    if hasattr(p, "preco_promocional") and p.preco_promocional:
-                        st.write(f"  -> Preço Promocional: R${p.preco_promocional:.2f}")
+                    total_valor += p.quantidade * p.preco_unitario
+            st.success(f"Valor total do estoque: R${total_valor:.2f}")
+            st.info(f"Total de pallets: {len(st.session_state.estoque)}")
+        else:
+            st.warning("O estoque está vazio.")
+
+    with col4:
+        if st.button("Informações do Estoque"):
+            st.write(f"**Nome do Estoque:** Estoque Principal")
+            st.write(f"**Responsável:** {st.session_state.responsavel_estoque}")
+
+            if st.session_state.estoque:
+                total_valor = 0
+                total_pallets = 0
+                for p in st.session_state.estoque:
+                    valor_item = p.quantidade * p.preco_unitario
+                    st.write(f"- {p.nome} | Quant: {p.quantidade} | Preço Unit: R${p.preco_unitario:.2f} | Valor Total: R${valor_item:.2f}")
+                    total_valor += valor_item
+                    total_pallets += p.quantidade
                 st.success(f"Valor total do estoque: R${total_valor:.2f}")
-                st.info(f"Total de pallets: {len(st.session_state.estoque)}")
+                st.info(f"Total de pallets no estoque: {total_pallets}")
+                st.info(f"Capacidade total do estoque: {st.session_state.capacidade_total} pallets")
             else:
                 st.warning("O estoque está vazio.")
+#? --------------------------------------------------------------------------
 
-    # Reserva de pallets (compra por encomenda)
+#! PARTE DOS PEDIDOS:
+def orders_page():
+    st.subheader("Pedidos")
+    st.write("Tela de pedidos")
+#!_____________________________________
+
+
+  
+#! ======= ABA GERENCIA GERAL =========
+def management_page():
+    st.subheader("Área do Gerente")
+    st.write("Gerenciamento de compras, descontos, funcionários e dashboard.")
+
+    col1, col2, col3, col4, col5,  spacer1, spacer2 = st.columns([1,1,1,1,1,0.5,0.5])
+
+    with col1:
+        if st.button("Aprovar Compras  +R$ 5.000"):
+            aprovadas = [c for c in st.session_state.clientes if c.get('compra_total', 0) >= 5000]
+            if aprovadas:
+             st.success(f"Aprovação concedida para {len(aprovadas)} clientes")
+        else:
+            st.warning("Nenhuma compra acima de R$ 5.000")
+            
+    with col2:
+        if st.button("Aprovar Descontos >= 15%"):
+            descontos = [c for c in st.session_state.clientes if c.get('desconto', 0) >= 15]
+            if descontos:
+                st.success(f"Desconto aprovado para {len(descontos)} clientes")
+        else:
+                st.warning("Nenhum desconto elegível")
+        
+    with col3:
+        if st.button("Exibir Relatório de Faturamento e Colaboradores"):
+            total_faturamento = sum(c.get('compra_total', 0) for c in st.session_state.clientes)
+            clientes_ativos = [c for c in st.session_state.clientes if c.get('ativo', True)]
+            st.write(f"Faturamento total: R${total_faturamento}")
+       
+            
+            inativos = len(st.session_state.clientes) - len(clientes_ativos)
+
+            dados_grafico = {
+            "Quantidade": [len(clientes_ativos), inativos],
+            "Categoria": ["Ativos", "Inativos"],
+            "Cor": ["#4CAF50", "#F44336"]  # Verde para ativos, vermelho para inativos
+        }
+
+        for i in range(2):
+            st.progress(dados_grafico["Quantidade"][i] / max(dados_grafico["Quantidade"] + [1]))  # barra proporcional
+            st.markdown(f"<span style='color:{dados_grafico['Cor'][i]}; font-weight:bold;'>{dados_grafico['Categoria'][i]}: {dados_grafico['Quantidade'][i]}</span>", unsafe_allow_html=True)
+            
     with col4:
-        if st.button("Reservar Pallet"):
-            with st.form("form_reserva"):
-                cliente = st.text_input("Nome do Cliente:")
-                produto = st.selectbox("Produto:", [p.nome for p in st.session_state.estoque])
-                quantidade = st.number_input("Quantidade a reservar:", min_value=1)
-                submitted = st.form_submit_button("Reservar")
-                if submitted:
-                    st.session_state.reservas.append({
-                        "cliente": cliente,
-                        "produto": produto,
-                        "quantidade": quantidade,
-                        "data": date.today()
-                    })
-                    st.success(f"{quantidade} pallet(s) de {produto} reservado(s) para {cliente}!")
+        if st.button("Gerenciar Meus Funcionários"):
+            promovidos = []
+            for f in st.session_state.funcionarios:
+                if f.get('vendas',0) > 10 or f.get('entregas',0) > 20:
+                    f['promovido'] = True
+                    promovidos.append(f['nome'])
+                else:
+                    f['promovido'] = False
+            if promovidos:
+                st.success(f"AUTORIZADO: Funcionários promovidos -> {', '.join(promovidos)}")
+            else:
+                st.warning("Nenhum funcionário promovido")
+        
 
-# -------------------- Gerência Geral --------------------
-def general_management(manager):
-    st.subheader("Gerência Geral")
-    st.write("Resumo do sistema:")
+    with col5:
+        if st.button("Exibir Dashboard"):
+            st.write("Dashboard do Sistema")
+            dados_dashboard = {
+        "Clientes": len(st.session_state.clientes),
+        "Produtos": len(st.session_state.produtos),
+        "Funcionários": len(st.session_state.funcionarios),
+        "Entregas": len(st.session_state.entregas),
+        "Estoque": len(st.session_state.estoque)
+    }
+    st.bar_chart(dados_dashboard)
 
-    st.write("📦 Estoque:")
-    st.write(manager.ver_estoque(st.session_state.estoque))
+#* navegação na area do gerente
 
-    st.write("👥 Clientes:")
-    st.write(manager.lista_clientes())
+st.write("---")
+st.subheader("Usar Navegação Rápida")
+col1, col2, col3, col4 = st.columns(4)
 
-    st.write("🧑‍💼 Vendedores:")
-    st.write(manager.lista_vendedores())
-
-    st.write("🚚 Motoristas:")
-    st.write(manager.lista_motoristas())
+with col1:
+    if st.button("Ver Meu Estoque"):
+        st.write(st.session_state.estoque)
+with col2:
+    if st.button("Ver Meus Clientes"):
+        st.write(st.session_state.clientes)
+with col3:
+    if st.button("Ver Meus Funcionários"):
+        st.write(st.session_state.funcionarios)
+with col4:
+    if st.button("Ver Minhas Entregas"):
+        st.write(st.session_state.entregas)  
+#!--------------------------------------------------------------------------------
+        
+#! ===== MENU FINAL E PRICNIPAL ====
 
 if menu == "Início":
     start_page()
-elif menu == "Área de Produtos":
-    product_page()
 elif menu == "Área do Cliente":
     client_page()
-elif menu == "Estoque":
+elif menu == "Área de Produtos":
+    product_page()
+elif menu == "Área de Estoque":
     stock_page()
-elif menu == "Pedidos":
+elif menu == "Ver Pedidos":
     orders_page()
 elif menu == "Gerência Geral":
-    general_management(manager)
+    management_page()
+
+    
+
+
+    

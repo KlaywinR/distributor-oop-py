@@ -5,7 +5,7 @@ from ..interfaces.pallet_interface import InterfacePallet
 
 class AbstractPallet(InterfacePallet):
     """
-    Lógica base para a classe Pallet
+    Cria uma classe base para pallet.
     """
     def __init__(self, id_pallet, product,max_capacity, max_wheight):
         self._id_pallet = id_pallet

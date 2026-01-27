@@ -1,7 +1,12 @@
 class ReportMixin:
+    """
+    Responsável pela geração de relatórios de vendas.
+    """
     def generate_report(self, seller):
-        
-        return f"""
+        """"
+        Gera um relatório de vendas do vendedor informado.
+        """
+        return   f"""
         Relatório de Vendas:
         - Clientes atendidos: {len(seller._Seller__costumers_served)}
         - Vendas realizadas: {len(seller._Seller__sales_made)}

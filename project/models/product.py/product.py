@@ -1,8 +1,8 @@
 
-from ..abstracts.promocional import Promocional
 from .product_status import ProductStatus
 from datetime import date
 from typing import Optional
+from project.abstracts.promocional import Promocional
 
 class Product(Promocional):
     def __init__(self, name, category,unit_measure,brand,

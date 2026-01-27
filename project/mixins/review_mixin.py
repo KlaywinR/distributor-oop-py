@@ -1,6 +1,13 @@
 
 class ReviewMixin:
+    """
+        Responsável pelo registro de avaliações de atendimento. Onde permite avaliação de 1 a 5 estrelas.
+    """
     def rate_service(self, stars):
+        """
+        Responsável pela avaliação de atendimento.
+        """
+        
         descriptions = {
             5: "Atendimento Excelente",
             4: "Atendimento Bom",

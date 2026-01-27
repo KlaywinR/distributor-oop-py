@@ -4,7 +4,10 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from project.models.pallet import Pallet
+from project.abstracts.loyalty_system import LoyaltySystem
 from project.models.mannager import Manager
+from project.models.client import Client
+
 
 
 if "estoque" not in st.session_state:
@@ -77,47 +80,87 @@ def client_page():
     st.subheader("Clientes")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    if "client" not in st.session_state:
+        st.session_state.client = Client(
+            "Atacadão", 123456, 12453, 10000,
+            "Preferências", "Ativo",
+            date.today(), "Endereço", "Telefone", "Tipo"
+        )
+    client = st.session_state.client
 
     #Comprar produtos
-    with col1:
-        if st.button("🛒Comprar"):##! ainda não está funcionando
-            produto = st.text_input("Produto que deseja comprar:")
-            if produto in st.session_state.produtos: 
+    with st.container():
+        st.markdown("### 🛒 Comprar Produtos")
+
+        with st.form("comprar_produto"):
+            produto = st.text_input("Produto que deseja comprar")
+            submitted = st.form_submit_button("Comprar")
+
+        if submitted:
+            if produto in st.session_state.produtos:
                 client.buy(produto)
                 st.success(f"Compra de '{produto}' realizada com sucesso!")
-            #else:   st.error(f"Produto não encontrado.")
+            else:
+                st.error("Produto não encontrado")
+
             
-    with col2:
-        if st.button("📊Desconto por volume"):
-            st.info("Obtenha descontos de acordo com o volume da compra.")
-            client.volume_discount(quantity_pallets=st.number_input("Quantidade de pallets:"))
-            st.success("Desconto aplicado com sucesso!")
+    with st.container():
+        st.markdown("### 📊 Desconto por volume")
 
-    with col3:
-        if st.button("⭐Adicionar Pontos Fidelidade"):
-            st.info("Funcionalidade de pontos fidelidade em desenvolvimento.")
-            #client = Client("Cliente", 123456)
-            client.add_loyalty_points(buy_value=st.number_input("Valor da compra:"))
-            st.success("Pontos adicionados com sucesso!")
+        with st.form("desconto_volume"):
+            quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
+            submitted = st.form_submit_button("Aplicar desconto")
 
-    with col4:
+        if submitted:
+            if client.volume_discount(quantity_pallets):
+                st.success("Desconto aplicado com sucesso!")
+
+
+    with st.container():
+        st.markdown("### ⭐ Adicionar Pontos Fidelidade")
+
+        with st.form("pontos_fidelidade"):
+            buy_value = st.number_input("Valor da compra", min_value=0.0)
+            submitted = st.form_submit_button("Adicionar pontos")
+
+        if submitted:
+            if client.add_loyalty_points(buy_value):
+                st.success("Pontos adicionados com sucesso!")
+
+
+    with st.container():
+        st.markdown("### 🎁Reivindicar Pontos")
         if st.button("🎁Reivindicar Pontos"):
             st.info("Funcionalidade de resgate de pontos.")
-            client.claim_points()
-            st.success("Pontos resgatados com sucesso!") 
+            client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
+            if client.claim_points():
+                st.success("Pontos resgatados com sucesso!") 
 
-    with col5:
+    with st.container():
+        st.markdown("### 🔍Checar Promoções")
         if st.button("🔍Checar Promoções"):
             st.info("Funcionalidade de promoções em desenvolvimento.")
-            client.check_promotion(buy_value=st.number_input("Valor da compra:"))
-            st.success("Promoção verificada com sucesso!")
+            client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
+            if client.check_promotion(buy_value=st.number_input("Valor da compra:")):
+                st.success("Promoção verificada com sucesso!")
 
-    with col6:
-        if st.button("💬Avaliar serviço"):
-            st.info("Funcionalidade de avaliação em desenvolvimento.")
-            #client.add_review(review=st.text_area("Deixe sua avaliação:"))
-            st.success("Avaliação enviada com sucesso!")
+    with st.container():
+        st.markdown("### 💬 Avaliar Serviço")
+
+        with st.form("avaliacao_servico"):
+            rating = st.number_input("Avaliação (1 a 5)", 1, 5)
+            comment = st.text_area("Comentário")
+            submitted = st.form_submit_button("Enviar avaliação")
+
+        if submitted:
+            if client.evaluate_service(rating, comment):
+                st.success("Avaliação enviada com sucesso!")
+
+
+                comment = st.text_area("Deixe sua avaliação:")
+                if st.button("Enviar Avaliação"):
+                    if client.evaluate_service(rating=rating, comment=comment):
+                        st.success("Avaliação enviada com sucesso!")
 
    
     
@@ -164,7 +207,7 @@ def stock_page():
                     st.info(f"Total de pallets no estoque: {len(st.session_state.estoque)}")
             else:
                 st.warning("Não há pallets no estoque para remover.")
-
+ 
     # Mostrar Estoque
     with col3:
         if st.button("Mostrar Estoque"):

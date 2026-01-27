@@ -79,29 +79,45 @@ def client_page():
 
     col1, col2, col3, col4, col5, col6 = st.columns(6)
 
+    #Comprar produtos
     with col1:
-        if st.button("🛒Comprar"):
-            st.info("Funcionalidade de compra em desenvolvimento.")
-
+        if st.button("🛒Comprar"):##! ainda não está funcionando
+            produto = st.text_input("Produto que deseja comprar:")
+            if produto in st.session_state.produtos: 
+                client.buy(produto)
+                st.success(f"Compra de '{produto}' realizada com sucesso!")
+            #else:   st.error(f"Produto não encontrado.")
+            
     with col2:
         if st.button("📊Desconto por volume"):
-            st.info("Funcionalidade de desconto em desenvolvimento.")
+            st.info("Obtenha descontos de acordo com o volume da compra.")
+            client.volume_discount(quantity_pallets=st.number_input("Quantidade de pallets:"))
+            st.success("Desconto aplicado com sucesso!")
 
     with col3:
         if st.button("⭐Adicionar Pontos Fidelidade"):
             st.info("Funcionalidade de pontos fidelidade em desenvolvimento.")
+            #client = Client("Cliente", 123456)
+            client.add_loyalty_points(buy_value=st.number_input("Valor da compra:"))
+            st.success("Pontos adicionados com sucesso!")
 
     with col4:
         if st.button("🎁Reivindicar Pontos"):
-            st.info("Funcionalidade de resgate de pontos em desenvolvimento.")
+            st.info("Funcionalidade de resgate de pontos.")
+            client.claim_points()
+            st.success("Pontos resgatados com sucesso!") 
 
     with col5:
         if st.button("🔍Checar Promoções"):
             st.info("Funcionalidade de promoções em desenvolvimento.")
+            client.check_promotion(buy_value=st.number_input("Valor da compra:"))
+            st.success("Promoção verificada com sucesso!")
 
     with col6:
         if st.button("💬Avaliar serviço"):
             st.info("Funcionalidade de avaliação em desenvolvimento.")
+            #client.add_review(review=st.text_area("Deixe sua avaliação:"))
+            st.success("Avaliação enviada com sucesso!")
 
    
     

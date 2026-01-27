@@ -126,20 +126,6 @@ def client_page():
                     if client.evaluate_service(rating=rating, comment=comment):
                         st.success("Avaliação enviada com sucesso!")
 
-        with st.form("avaliacao_servico"):
-            rating = st.number_input("Avaliação (1 a 5)", 1, 5)
-            comment = st.text_area("Comentário")
-            submitted = st.form_submit_button("Enviar avaliação")
-
-        if submitted:
-            if client.evaluate_service(rating, comment):
-                st.success("Avaliação enviada com sucesso!")
-
-
-                comment = st.text_area("Deixe sua avaliação:")
-                if st.button("Enviar Avaliação"):
-                    if client.evaluate_service(rating=rating, comment=comment):
-                        st.success("Avaliação enviada com sucesso!")
 #!____________________________________________
 
 #! ---- funcção produto ________________________
@@ -220,8 +206,8 @@ def stock_page():
 
 #! PARTE DOS PEDIDOS:
 def orders_page():
-    st.subheader("Pedidos")
-    st.write("Tela de pedidos")
+    st.subheader("🗒️Pedidos")
+    st.write("🗒️Tela de pedidos")
 #!_____________________________________
 
 

@@ -1,5 +1,5 @@
 
-from ..interfaces.stock_interface import StockInterface
+from project.interfaces.stock_interface import StockInterface
 from .stock_item import StockItem
 
 class BaseStock(StockInterface):

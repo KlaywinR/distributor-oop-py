@@ -1,13 +1,9 @@
 from datetime import datetime
-<<<<<<< HEAD
 from project.abstracts.loyalty_system import LoyaltySystem
 from project.mixins.review_mixin import ReviewMixin
 from project.abstracts.abstract_client import AbstractClient
-=======
-from abstracts.loyalty_system import LoyaltySystem
-from mixins.review_mixin import ReviewMixin
-from abstracts.abstract_client import AbstractClient
->>>>>>> temp-branch
+
+
 
 class Client(ReviewMixin, AbstractClient, LoyaltySystem): 
     def __init__(self, name, cnpj, id_client, credit_limit, costumer_preferences, client_status, registration_date, address, phone, client_type, loyalty_points=0):

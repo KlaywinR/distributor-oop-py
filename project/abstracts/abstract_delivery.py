@@ -1,5 +1,5 @@
 
-from .delivery_interface import DeliveryInterface
+from ..interfaces.delivery_interface import DeliveryInterface
 from abc import abstractmethod, ABC
 from datetime import datetime
 

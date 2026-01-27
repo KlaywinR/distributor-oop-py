@@ -1,7 +1,7 @@
 
 
 from ..mixins.delay_control_mixin import DelayControlMixin
-from .abstract_delivery import AbstractDelivery
+from ..abstracts.abstract_delivery import AbstractDelivery
 from datetime import datetime, timedelta
 
 

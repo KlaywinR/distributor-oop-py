@@ -1,7 +1,7 @@
 from datetime import datetime
 from ..abstracts.loyalty_system import LoyaltySystem
 from ..mixins.review_mixin import ReviewMixin
-from .abstract_client import AbstractClient
+from ..abstracts.abstract_client import AbstractClient
 
 class Client(ReviewMixin, AbstractClient, LoyaltySystem): 
     def __init__(self, name, cnpj, id_client, credit_limit, costumer_preferences, client_status, registration_date, address, phone, client_type, loyalty_points=0):

@@ -1,5 +1,5 @@
 
-from .distributor_interface import DistributorInterface
+from ..interfaces.distributor_interface import DistributorInterface
 from abc import ABC
     
 class AbstractDistributor(DistributorInterface, ABC):

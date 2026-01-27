@@ -1,13 +1,14 @@
 
-
+from .purchase import Purchase
+from .distributor import Distributor
+from ..abstracts.abstract_manager import AbstractManager
 from ..mixins.authorization_mixin import AuthorizationMixin
-from .abstract_manager import AbstractManager
-from models.purchase import Purchase
-from models.distributor import Distributor
+
 
 
 class Manager(AuthorizationMixin, AbstractManager):
-   
+    def __init__(self, name="Gerente", registration="123"):
+        super().__init__(name, registration)
     def approve_purchase(self, purchase: Purchase):
        if purchase.total_value > 50000:
            self._authorize("INFORMAÇÃO DO SISTEMA: Compra de Alto Valor")
@@ -33,4 +34,18 @@ class Manager(AuthorizationMixin, AbstractManager):
         elif action == "DISMISS" and hasattr(employee, "dismiss"):
             employee.dismiss()
 
-    
+    def ver_estoque(self, estoque):
+        if not estoque:
+            return "Estoque vazio."
+        total_pallets = len(estoque)
+        total_valor = sum(p.quantidade * p.preco_unitario for p in estoque)
+        return f"Total de pallets: {total_pallets}, Valor total: R${total_valor:.2f}"
+
+    def lista_clientes(self):
+        return "Lista de clientes não implementada."
+
+    def lista_vendedores(self):
+        return "Lista de vendedores não implementada."
+
+    def lista_motoristas(self):
+        return "Lista de motoristas não implementada."

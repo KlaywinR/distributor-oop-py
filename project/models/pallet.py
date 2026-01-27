@@ -1,12 +1,16 @@
 
-from .abstract_pallet import AbstractPallet
-from ..mixins.status_mixin import StatusMixin
+from datetime import date
 
-class Pallet(StatusMixin, AbstractPallet):
-    def __init__(self, id_pallet, product, max_capacity, max_wheight, location_in_stock):
-        super().__init__(id_pallet, product, max_capacity, max_wheight)
-        self._location_in_stock = location_in_stock
-        self._status = "Ativo"
+class Pallet:
+    def __init__(self, nome, quantidade, preco, validade):
+        self.nome = nome
+        self.quantidade = quantidade
+        self.preco_unitario = preco
+        self.validade = validade
+        self.preco_promocional = None
+    
+    def is_active(self):
+        return self.validade >= date.today()
     
     @property
     def quantity_products(self) -> int:

@@ -1,5 +1,5 @@
 
-from .interface_manager import InterfaceManager
+from ..interfaces.interface_manager import InterfaceManager
 from abc import ABC
 
 class AbstractManager(InterfaceManager, ABC):

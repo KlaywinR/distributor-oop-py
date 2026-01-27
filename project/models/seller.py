@@ -1,8 +1,8 @@
 
 from models.employee import Employee
 from abc import abstractmethod, ABC
-from mixins.seller_mixin import ReportMixin
-from abstracts.abstract_seller import AbstractSeller
+from ..mixins.seller_mixin import ReportMixin
+from ..abstracts.abstract_seller import AbstractSeller
 from interfaces.seller_interface import CustomerServiceInterface
 
     

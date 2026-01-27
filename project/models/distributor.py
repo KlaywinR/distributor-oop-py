@@ -1,7 +1,7 @@
 
 from ..mixins.audit_mixin import AuditMixin
 from ..mixins.report_mixin import ReportMixin
-from .abstract_distributor import AbstractDistributor
+from ..abstracts.abstract_distributor import AbstractDistributor
 
 class Distributor(ReportMixin, AuditMixin, AbstractDistributor):
     

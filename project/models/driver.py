@@ -1,6 +1,6 @@
 
 from ..mixins.avaibility_mixin import AvailabilityMixin
-from .abstract_driver import AbstractDriver
+from ..abstracts.abstract_driver import AbstractDriver
 from datetime import date
 
 class Driver(AvailabilityMixin, AbstractDriver):

@@ -5,8 +5,12 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from project.models.client import Client
 from project.models.pallet import Pallet
+from project.abstracts.loyalty_system import LoyaltySystem
 from project.models.mannager import Manager
+from project.models.client import Client
+
 
 
 for key in ["estoque", "produtos", "reservas", "clientes", "funcionarios", "entregas"]:
@@ -43,6 +47,103 @@ def start_page():
 def client_page():
     st.subheader("Clientes")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
+    
+    if "client" not in st.session_state:
+        st.session_state.client = Client(
+            "Atacadão", 123456, 12453, 10000,
+            "Preferências", "Ativo",
+            date.today(), "Endereço", "Telefone", "Tipo"
+        )
+    client = st.session_state.client
+
+    #Comprar produtos
+    with st.container():
+        st.markdown("### 🛒 Comprar Produtos")
+
+        with st.form("comprar_produto"):
+            produto = st.text_input("Produto que deseja comprar")
+            submitted = st.form_submit_button("Comprar")
+
+        if submitted:
+            if produto in st.session_state.produtos:
+                client.buy(produto)
+                st.success(f"Compra de '{produto}' realizada com sucesso!")
+            else:
+                st.error("Produto não encontrado")
+
+            
+    with st.container():
+        st.markdown("### 📊 Desconto por volume")
+
+        with st.form("desconto_volume"):
+            quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
+            submitted = st.form_submit_button("Aplicar desconto")
+
+        if submitted:
+            if client.volume_discount(quantity_pallets):
+                st.success("Desconto aplicado com sucesso!")
+
+
+    with st.container():
+        st.markdown("### ⭐ Adicionar Pontos Fidelidade")
+
+        with st.form("pontos_fidelidade"):
+            buy_value = st.number_input("Valor da compra", min_value=0.0)
+            submitted = st.form_submit_button("Adicionar pontos")
+
+        if submitted:
+            if client.add_loyalty_points(buy_value):
+                st.success("Pontos adicionados com sucesso!")
+
+
+    with st.container():
+        st.markdown("### 🎁Reivindicar Pontos")
+        if st.button("🎁Reivindicar Pontos"):
+            st.info("Funcionalidade de resgate de pontos.")
+            client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
+            if client.claim_points():
+                st.success("Pontos resgatados com sucesso!") 
+
+    with st.container():
+        st.markdown("### 🔍Checar Promoções")
+        if st.button("🔍Checar Promoções"):
+            st.info("Funcionalidade de promoções em desenvolvimento.")
+            client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
+            if client.check_promotion(buy_value=st.number_input("Valor da compra:")):
+                st.success("Promoção verificada com sucesso!")
+
+    with st.container():
+        st.markdown("### 💬 Avaliar Serviço")
+
+        with st.form("avaliacao_servico"):
+            rating = st.number_input("Avaliação (1 a 5)", 1, 5)
+            comment = st.text_area("Comentário")
+            submitted = st.form_submit_button("Enviar avaliação")
+
+        if submitted:
+            if client.evaluate_service(rating, comment):
+                st.success("Avaliação enviada com sucesso!")
+
+
+                comment = st.text_area("Deixe sua avaliação:")
+                if st.button("Enviar Avaliação"):
+                    if client.evaluate_service(rating=rating, comment=comment):
+                        st.success("Avaliação enviada com sucesso!")
+
+        with st.form("avaliacao_servico"):
+            rating = st.number_input("Avaliação (1 a 5)", 1, 5)
+            comment = st.text_area("Comentário")
+            submitted = st.form_submit_button("Enviar avaliação")
+
+        if submitted:
+            if client.evaluate_service(rating, comment):
+                st.success("Avaliação enviada com sucesso!")
+
+
+                comment = st.text_area("Deixe sua avaliação:")
+                if st.button("Enviar Avaliação"):
+                    if client.evaluate_service(rating=rating, comment=comment):
+                        st.success("Avaliação enviada com sucesso!")
 #!____________________________________________
 
 #!____________ FUNÇÃO PRODUTO __________________________________________________________-
@@ -135,6 +236,31 @@ def product_page():
                 st.write(f"   Peso por Unidade: {p.get('peso_unidade', 'Não informado')}")
                 st.write(f"   Preço de Custo: R${p.get('preco_custo', 'Não informado')}")
                 st.write(f"   Preço Promocional: {p.get('preco_promocional', 'Sem promoção')}")
+                st.error(f"O pallet '{produto_info}' está vencido e não foi adicionado.")
+    col1, col2, col3 = st.columns(3)       
+    with col2:
+        if st.button("Remover Pallet"):
+            if st.session_state.estoque:
+                nomes_estoque = [p.nome for p in st.session_state.estoque]
+                nome_remover = st.selectbox("Escolha o pallet para remover:", nomes_estoque)
+                confirm = st.checkbox("Confirmar remoção?")
+                if confirm:
+                    st.session_state.estoque = [p for p in st.session_state.estoque if p.nome != nome_remover]
+                    st.success(f"Pallet '{nome_remover}' removido!")
+                    st.info(f"Total de pallets no estoque: {len(st.session_state.estoque)}")
+        else:
+                st.warning("Não há pallets no estoque para remover.")
+    with col3:
+        if st.button("Mostrar Estoque Completo"):
+            if st.session_state.estoque:
+                total_valor = 0
+                for p in st.session_state.estoque:
+                    st.write(f"- {p.nome} | Quant: {p.quantidade} | Preço Unit: R${p.preco_unitario:.2f} | Ativo: {p.is_active()}")
+                    total_valor += p.quantidade * p.preco_unitario
+            st.success(f"Valor total do estoque: R${total_valor:.2f}")
+            st.info(f"Total de pallets: {len(st.session_state.estoque)}")
+        else:
+            st.warning("O estoque está vazio.")
 
     #* Gráfico comparativo de paletes por produto: 
     st.markdown("###  Comparativo de Paletes por Produto")
@@ -348,6 +474,24 @@ def management_page():
     elif st.session_state.get("nav") == "entregas":
         st.write("###   Entregas")
         st.write(st.session_state.entregas)
+    #* navegação na area do gerente
+
+    st.write("---")
+    st.subheader("Usar Navegação Rápida")
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        if st.button("Ver Meu Estoque"):
+            st.write(st.session_state.estoque)
+    with col2:
+        if st.button("Ver Meus Clientes"):
+            st.write(st.session_state.clientes)
+    with col3:
+        if st.button("Ver Meus Funcionários"):
+            st.write(st.session_state.funcionarios)
+    with col4:
+        if st.button("Ver Minhas Entregas"):
+            st.write(st.session_state.entregas)  
 #!--------------------------------------------------------------------------------
         
 #! ===== MENU FINAL E PRICNIPAL ====
@@ -356,13 +500,13 @@ if menu == "Início":
     start_page()
 elif menu == "Área do Cliente":
     client_page()
-elif menu == "Área de Produtos":
+elif menu == "Nossos Produtos":
     product_page()
-elif menu == "Área de Estoque":
+elif menu == "Nosso Estoque":
     stock_page()
-elif menu == "Ver Pedidos":
+elif menu == "Nossos Pedidos":
     orders_page()
-elif menu == "Gerência Geral":
+elif menu == "Nossa Gerência Geral":
     management_page()
 
     

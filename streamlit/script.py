@@ -47,7 +47,7 @@ menu = st.sidebar.radio(
         "Área Gerente",
         "Área Vendedor",
         "Área Motorista",
-        "Área de Entregas"
+        "Área Entregas"
     ]
 ) 
 
@@ -1016,8 +1016,6 @@ def deliveries_page():
         timeline = delivery.get_timeline()
         for evento in timeline:
             st.write(f"- {evento['event']} em {evento['date'].strftime('%d/%m/%Y %H:%M:%S')}")
-
-
 
 #=== Navegação Principal ===
 if menu == "Tela Inicial":

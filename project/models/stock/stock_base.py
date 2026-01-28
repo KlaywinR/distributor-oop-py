@@ -1,6 +1,6 @@
 
 from project.interfaces.stock_interface import StockInterface
-from .stock_item import StockItem
+from project.models.stock.stock_item import StockItem
 
 class BaseStock(StockInterface):
     def __init__(self, total_capacity: int):

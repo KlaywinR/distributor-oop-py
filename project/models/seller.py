@@ -1,9 +1,9 @@
 
-from models.employee import Employee
+from project.models.employee import Employee
 from abc import abstractmethod, ABC
-from ..mixins.seller_mixin import ReportMixin
-from ..abstracts.abstract_seller import AbstractSeller
-from interfaces.seller_interface import CustomerServiceInterface
+from project.mixins.seller_mixin import ReportMixin
+from project.abstracts.abstract_seller import AbstractSeller
+from project.interfaces.seller_interface import CustomerServiceInterface
 
     
 class Seller(Employee, AbstractSeller,CustomerServiceInterface, ReportMixin): 

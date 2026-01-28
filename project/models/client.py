@@ -3,6 +3,8 @@ from project.abstracts.loyalty_system import LoyaltySystem
 from project.mixins.review_mixin import ReviewMixin
 from project.abstracts.abstract_client import AbstractClient
 
+
+
 class Client(ReviewMixin, AbstractClient, LoyaltySystem): 
     def __init__(self, name, cnpj, id_client, credit_limit, costumer_preferences, client_status, registration_date, address, phone, client_type, loyalty_points=0):
         self.__name = name

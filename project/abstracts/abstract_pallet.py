@@ -1,6 +1,6 @@
 
 from datetime import date
-from ..interfaces.pallet_interface import InterfacePallet
+from project.interfaces.pallet_interface import InterfacePallet
 
 
 class AbstractPallet(InterfacePallet):

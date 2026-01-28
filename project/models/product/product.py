@@ -1,6 +1,6 @@
 
-from ..abstracts.promocional import Promocional
-from .product_status import ProductStatus
+from project.abstracts.promocional import Promocional
+from project.models.product.product_status import ProductStatus
 from datetime import date
 from typing import Optional
 

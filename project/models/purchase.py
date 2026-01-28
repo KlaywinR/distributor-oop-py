@@ -1,6 +1,6 @@
 
-from ..abstracts.abstract_purchase import AbstractPurchase
-from ..mixins.mixin_purchase import MixinPurchase
+from project.abstracts.abstract_purchase import AbstractPurchase
+from project.mixins.mixin_purchase import MixinPurchase
 
 class Purchase(AbstractPurchase, MixinPurchase):
     def __init__(self, client, seller, product, quantity_pallets: int, unit_value_pallet: int):

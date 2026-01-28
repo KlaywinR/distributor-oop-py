@@ -1,5 +1,5 @@
 
-from ..interfaces.interface_purchase import InterfacePurchase
+from project.interfaces.interface_purchase import InterfacePurchase
 from abc import ABC
 from datetime import datetime
 

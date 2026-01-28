@@ -1,4 +1,4 @@
-from products.product import Product
+from project.models.product.product import Product
 
 class StockItem:
     def __init__(self, product: Product, pallets:int):

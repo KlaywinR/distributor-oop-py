@@ -1,7 +1,5 @@
-
-
 from abc import ABC, abstractmethod
-from ..models.product.product import Product
+from project.models.product.product import Product
 
 class StockInterface(ABC):
     

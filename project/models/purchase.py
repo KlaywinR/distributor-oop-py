@@ -10,7 +10,6 @@ class Purchase(AbstractPurchase, MixinPurchase):
     - OCP: promoções e impostos podem ser estendidos.
     - DI: depende de abstrações.
     """
-    
     def __init__(self, client, seller, product, quantity_pallets: int, unit_value_pallet: int):
         super().__init__(client, seller, product, quantity_pallets)
         self._logs = []

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from project.models.client import Client
 from project.models.pallet import Pallet
-from project.abstracts.loyalty_system import LoyaltySystem
+from project.abstracts.loyalty_system import LoyaltySystem  
 from project.models.mannager import Manager
 from project.models.client import Client
 from project.models.stock.stock import Stock
@@ -60,7 +60,7 @@ def start_page():
     st.subheader("Olá, seja bem-vindo!")
     st.write("Este é o painel inicial do sistema. Você pode navegar rapidamente para qualquer área e visualizar um resumo de operações.")
 
-    st.subheader(" Fast Acess")
+    st.subheader("Fast Acess")
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("Ir Para Área do Cliente"):
@@ -77,7 +77,7 @@ def start_page():
             
     st.markdown("---")
 
-    st.subheader("Summary")
+    st.subheader("Summary Geral")
     dados_dashboard = {
         "Clientes": len(st.session_state.clientes),
         "Produtos": len(st.session_state.produtos),
@@ -89,12 +89,11 @@ def start_page():
 
     st.markdown("---")
 
-    st.subheader(" Interaja com o nosso Sistema")
+    st.subheader("Interaja com o DistriSys")
     username = st.text_input("Digite seu nome:")
     humor = st.selectbox(f"Olá! {username} Como você está se sentindo hoje?", [" Ótimo", "Muito Bem", "Estou Neutro", "Muito Cansado"])
-    if st.button("Enter"):
-        st.success(f"Olá {username}, que bom ter você aqui! Vejo que está se sentindo {humor}. Vamos tornar sua experiência ainda mais produtiva!")
-
+    if st.button("Enviar Respostas"):
+        st.success(f"Olá, {username} que bom ter você aqui! Vejo que está se sentindo {humor}. Vamos tornar sua experiência ainda mais produtiva!")
     st.markdown("---")
 
     st.subheader(" Dica do Dia")
@@ -104,12 +103,14 @@ def start_page():
         "Mantenha o estoque atualizado para evitar rupturas.",
         "Clientes satisfeitos são a chave para o sucesso!"
     ]
+
     import random
     st.info(random.choice(tip))
 
 #=== Página do Cliente ===
 def client_page():
     st.subheader("Clients")
+    st.markdown("___")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
     
     """
@@ -391,22 +392,22 @@ def client_page():
         
 #=== Página do Estoque ===
 def stock_page():
-    st.title("   Gestão de Estoque")
+    st.subheader("Gestão Total do Estoque")
     st.markdown("---")
 
     stock = st.session_state.stock_obj
 
-    st.subheader("  Adicionar Paletes")
+    st.subheader("Cadastro de Pallets")
     with st.form("form_add_pallet"):
         nome = st.text_input("Nome do Produto/Pallet") 
         quantidade = st.number_input("Quantidade", min_value=1, step=1) 
-        preco_unitario = st.number_input("Preço Unitário (R$)", min_value=0.0, step=0.01) 
-        marca = st.text_input("Marca")
-        categoria = st.text_input("Categoria")
-        fornecedor = st.text_input("Fornecedor")
+        preco_unitario = st.number_input("Preço Unitário - R$", min_value=0.0, step=0.01) 
+        marca = st.text_input("Marca do Produto")
+        categoria = st.text_input("Categoria do Produto")
+        fornecedor = st.text_input("Nome do Fornecedor")
         validade = st.date_input("Data de Validade")
-        is_active = st.checkbox("Produto ativo (não vencido)?", value=True) 
-        submitted = st.form_submit_button("Adicionar ao Estoque")
+        is_active = st.checkbox("O Produto está ativo?", value=True) 
+        submitted = st.form_submit_button("Colocar no Estoque")
 
         if submitted:
             if is_active:
@@ -449,18 +450,18 @@ def stock_page():
                     st.session_state.produtos.append(novo_produto)  
                     st.success(f"{quantidade} paletes de {nome} adicionados ao estoque e vinculados à gestão de produtos.")
                 except Exception as e:
-                    st.error(f"Erro ao adicionar produto: {str(e)}")
+                    st.error(f"Mensagem do Sistema: Erro ao adicionar produto: {str(e)}")
             else:
-                st.error(f"O pallet '{nome}' está vencido e não pode ser adicionado.")
+                st.error(f"Mensagem do Sistema: O pallet '{nome}' está vencido e não pode ser adicionado.")
 
     st.markdown("---")
 
-    st.subheader("   Remover Paletes")
+    st.subheader("Remoção de Pallets")
     if st.session_state.estoque:
         produto_remover = st.selectbox("Selecione o produto para remover:", [p["nome"] for p in st.session_state.estoque])
-        qtd_remover = st.number_input("Quantidade a remover", min_value=1, step=1)
+        qtd_remover = st.number_input("Quantidade para remoção", min_value=1, step=1)
         confirmar = st.checkbox("Confirmar remoção do produto selecionado")
-        if st.button("Remover"):
+        if st.button("Desejo Remover Pallet"):
             produto_encontrado_estoque = None
             for p in st.session_state.estoque:
                 if p["nome"] == produto_remover:
@@ -492,19 +493,19 @@ def stock_page():
                             
                             st.success(f"{qtd_remover} paletes de {produto_remover} removidos do estoque.")
                         else:
-                            st.error(f"Produto '{produto_remover}' não encontrado no estoque de objetos.")
+                            st.error(f"Mensagem do sistema: Produto '{produto_remover}' não encontrado no estoque de objetos.")
                     except ValueError as e:
-                        st.error(f"Erro ao remover: {str(e)}")
+                        st.error(f"Mensagem do Sistema: Erro ao remover: {str(e)}")
                 else:
-                    st.error("Quantidade insuficiente ou remoção não confirmada.")
+                    st.error("Mensagem do Sistema: Quantidade insuficiente ou remoção não confirmada.")
     else:
-        st.warning("Mensagem do Sistema: Estoque vazio. Nenhum pallet para remover.")
+        st.warning("Mensagem do Sistema: O Estoque se encontra vazio, não há pallets para remover.")
 
     st.markdown("---")
 
   
-    st.subheader("   Listagem de Paletes e Valor Total")
-    if st.button("Listar Paletes"):
+    st.subheader("Listagem de Pallets e Valor Total")
+    if st.button("Listar Todos os Pallets"):
         estoque_atualizado = []
         for item in stock.list_pallets():
             estoque_atualizado.append({
@@ -539,7 +540,7 @@ def stock_page():
     st.markdown("---")
 
     st.subheader("   Informações Gerais do Estoque")
-    if st.button("Quero Mostrar Informações"):
+    if st.button("Desejo Mostrar Informações"):
         if st.session_state.estoque:
             valor_total = sum(p["preco"] * p["quantidade"] for p in st.session_state.estoque)
             quantidade_total = sum(p["quantidade"] for p in st.session_state.estoque)
@@ -562,7 +563,7 @@ def stock_page():
             
 #=== Página de Pedidos ===
 def orders_page():
-    st.title("   Gestão de Pedidos")
+    st.subheader("Gestão de Pedidos")
     st.markdown("---")
     st.write("Esta Área é dedicada ao registro, acompanhamento e análise de pedidos dos clientes.")
 

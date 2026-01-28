@@ -1,8 +1,8 @@
 
 from .stock_base import BaseStock
-from ..mixins.movement_mixin import MovementMixin
 from .stock_item import StockItem
 from products.product import Product
+from project.mixins.movement_mixin import MovementMixin
 
 
 class Stock(BaseStock, MovementMixin):

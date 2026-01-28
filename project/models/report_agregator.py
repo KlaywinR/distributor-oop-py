@@ -1,4 +1,11 @@
 class ReportAggregator:
+    """Agregador de relatórios do sistema.
+    
+    - SRP: apenas agrega e organiza dados.
+    - DIP: depende de objetos que expõem interfaces.
+    - OCP: novos relatórios podem ser adicionados sem alterar
+      entidades existentes.
+    """
     def __init__(self, clients, sellers, products, deliveries):
         self.clients = clients
         self.sellers = sellers

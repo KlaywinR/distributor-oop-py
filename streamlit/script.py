@@ -14,10 +14,7 @@ from project.models.client import Client
 from project.models.stock.stock import Stock
 from project.models.product.product import Product
 
-
-
-#! sessões de estado.
-
+# incializações de estado:
 for key in ["estoque", "produtos", "reservas", "clientes", "funcionarios", "entregas"]:
     if key not in st.session_state:
         st.session_state[key] = []
@@ -126,8 +123,7 @@ def client_page():
         )
     client = st.session_state.client
     
-    #Formulárioa de interação do cliente
-    with st.form("comprar_produto"):# formulário de compra de produto por parte do cliente.
+    with st.form("comprar_produto"):
         produto = st.text_input("Nome do produto que deseja comprar")
         submitted = st.form_submit_button("Efetuar Compra")
     if submitted:
@@ -137,23 +133,23 @@ def client_page():
         else:
             st.error("Produto não foi encontrado")
 
-    with st.form("desconto_volume"):#Desconto acerca do volume da compra do cliente.
+    with st.form("desconto_volume"):
         quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
         submitted = st.form_submit_button("Aplicar desconto")
     if submitted and client.volume_discount(quantity_pallets):
         st.success("Desconto aplicado com sucesso!")
 
 
-    with st.form("pontos_fidelidade"):#Adicionar pontos fidelidade a compra do cliente
+    with st.form("pontos_fidelidade"):
         buy_value = st.number_input("Valor da compra", min_value=0.0)
         submitted = st.form_submit_button("Adicionar pontos")
     if submitted and client.add_loyalty_points(buy_value):
         st.success("Pontos adicionados com sucesso!")
 
-    if st.button("Desejo Reivindicar Pontos") and client.claim_points():#Cliente resgata pontos acumulados
+    if st.button("Desejo Reivindicar Pontos") and client.claim_points():
         st.success("Pontos resgatados com sucesso!") 
 
-    if st.button("Desejo Ver Promoções"):#Cliente verifica promoções aplicadas
+    if st.button("Desejo Ver Promoções"):
         valor = st.number_input("Valor da compra:")
         if client.check_promotion(buy_value=valor):
             st.success("Promoção verificada com sucesso!")
@@ -174,7 +170,7 @@ def product_page():
     st.markdown("---")
     if st.button("Adicionar Preço Promocional"):
             for p in st.session_state.estoque:
-                p.preco_promocional = p.preco_unitario * 0.9  # 10% de desconto
+                p.preco_promocional = p.preco_unitario * 0.9  #10% de desconto
             st.success("Preço promocional aplicado automaticamente!")
 
     if st.session_state.mostrar_form:
@@ -192,8 +188,6 @@ def product_page():
                 })
                 st.success(f"Produto '{name}' cadastrado com sucesso!")
 
-
-
 def client_page():
     st.subheader("Clientes")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
@@ -205,10 +199,9 @@ def client_page():
             date.today(), "Endereço", "Telefone", "Tipo"
         )
     client = st.session_state.client
-
-    #Comprar produtos
+    
     with st.container():
-        st.markdown("### 🛒 Comprar Produtos")
+        st.markdown("### Comprar Produtos")
 
         with st.form("comprar_produto"):
             produto = st.text_input("Produto que deseja comprar")
@@ -223,7 +216,7 @@ def client_page():
 
             
     with st.container():
-        st.markdown("### 📊 Desconto por volume")
+        st.markdown("### Desconto por volume")
 
         with st.form("desconto_volume"):
             quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
@@ -235,7 +228,7 @@ def client_page():
 
 
     with st.container():
-        st.markdown("### ⭐ Adicionar Pontos Fidelidade")
+        st.markdown("### Adicionar Pontos Fidelidade")
 
         with st.form("pontos_fidelidade"):
             buy_value = st.number_input("Valor da compra", min_value=0.0)
@@ -247,23 +240,23 @@ def client_page():
 
 
     with st.container():
-        st.markdown("### 🎁Reivindicar Pontos")
-        if st.button("🎁Reivindicar Pontos"):
+        st.markdown("### Reivindicar Pontos")
+        if st.button(" Reivindicar Pontos"):
             st.info("Funcionalidade de resgate de pontos.")
             client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
             if client.claim_points():
                 st.success("Pontos resgatados com sucesso!") 
 
     with st.container():
-        st.markdown("### 🔍Checar Promoções")
-        if st.button("🔍Checar Promoções"):
+        st.markdown("### Checar Promoções")
+        if st.button(" Checar Promoções"):
             st.info("Funcionalidade de promoções em desenvolvimento.")
             client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
             if client.check_promotion(buy_value=st.number_input("Valor da compra:")):
                 st.success("Promoção verificada com sucesso!")
 
     with st.container():
-        st.markdown("### 💬 Avaliar Serviço")
+        st.markdown("###   Avaliar Serviço")
 
         with st.form("avaliacao_servico"):
             rating = st.number_input("Avaliação (1 a 5)", 1, 5)
@@ -273,7 +266,6 @@ def client_page():
         if submitted:
             if client.evaluate_service(rating, comment):
                 st.success("Avaliação enviada com sucesso!")
-
 
                 comment = st.text_area("Deixe sua avaliação:")
                 if st.button("Enviar Avaliação"):
@@ -442,10 +434,9 @@ def stock_page():
                         expiration_date=validade
                     )
                     
-                    # Adicionar ao Stock
                     stock.add_pallet(produto_obj, int(quantidade))
                     
-                    # Manter também no session_state para compatibilidade
+                    #compatibilidade com o estoque
                     novo_produto = {
                         "nome": nome,
                         "quantidade": quantidade,
@@ -481,7 +472,7 @@ def stock_page():
             if produto_encontrado_estoque:
                 if produto_encontrado_estoque["quantidade"] >= qtd_remover and confirmar:
                     try:
-                        # Encontrar o produto correspondente no estoque
+                        #produto correspondente no estoque
                         produto_encontrado = None
                         for item in stock.list_pallets():
                             if item.product.name == produto_remover:
@@ -489,15 +480,12 @@ def stock_page():
                                 break
                         
                         if produto_encontrado:
-                            # Chamar del_pallet com o objeto Product correto
                             stock.del_pallet(produto_encontrado, qtd_remover)
                             produto_encontrado_estoque["quantidade"] -= qtd_remover
                             
-                            # Se a quantidade chegou a 0, remove o produto do estoque
                             if produto_encontrado_estoque["quantidade"] == 0:
                                 st.session_state.estoque.remove(produto_encontrado_estoque)
-                               
-                            # Sincronizar com produtos também
+                             
                             for prod in st.session_state.produtos:
                                 if prod["nome"] == produto_remover:
                                     prod["quantidade"] = produto_encontrado_estoque["quantidade"]
@@ -519,7 +507,6 @@ def stock_page():
   
     st.subheader("   Listagem de Paletes e Valor Total")
     if st.button("Listar Paletes"):
-        # Sincronizar com o Stock para pegar dados atualizados
         estoque_atualizado = []
         for item in stock.list_pallets():
             estoque_atualizado.append({
@@ -753,7 +740,6 @@ def management_page():
             else:
                 st.warning("Não há pallets no estoque para remover.")
  
-    # Mostrar Estoque
     with col3:
         if st.button("View Employees"):
             menu = "Área Funcionários"
@@ -831,7 +817,6 @@ def seller_page():
         fake_client = FakeClient(cliente_credito, 650)
         st.info(seller.see_costumer_credit(fake_client))
 
-
     st.subheader(" Acompanhamento e Benefícios")
     cliente_acomp = st.text_input("Cliente para acompanhamento")
     if st.button("Fazer Acompanhamento"):
@@ -862,11 +847,10 @@ def seller_page():
 
 #== Area do Motorista ===
 def driver_page():
-    st.title("🚚 Área do Motorista")
+    st.title("  Área do Motorista")
     st.markdown("---")
     st.write("Gerencie entregas, ocorrências, disponibilidade e status do motorista.")
 
-    # Inicializa um motorista na sessão
     if "driver" not in st.session_state:
         from datetime import date
         from project.models.driver import Driver   
@@ -881,24 +865,22 @@ def driver_page():
         )
     driver = st.session_state.driver
 
-    # === Verificar CNH ===
-    st.subheader("📄 Validade da CNH")
+
+    st.subheader(" Validade da CNH")
     if st.button("Verificar CNH"):
         if driver.cnh_is_valid():
-            st.success("CNH válida! ✅")
+            st.success("CNH válida ")
         else:
-            st.error("CNH vencida ❌")
+            st.error("CNH vencida")
 
-    # === Verificar se pode operar ===
-    st.subheader("⚙️ Disponibilidade para Operar")
+    st.subheader(" Disponibilidade para Operar")
     if st.button("Verificar Disponibilidade"):
         if driver.can_operate():
-            st.success("Motorista pode operar 🚚")
+            st.success("Motorista pode operar ")
         else:
-            st.error("Motorista não pode operar ❌")
+            st.error("Motorista não pode operar")
 
-    # === Atribuir Entrega ===
-    st.subheader("📦 Atribuir Entrega")
+    st.subheader(" Atribuir Entrega")
     entrega_nome = st.text_input("Nome da Entrega")
     if st.button("Atribuir Entrega"):
         try:
@@ -907,30 +889,25 @@ def driver_page():
         except PermissionError as e:
             st.error(str(e))
 
-    # === Rejeitar Entrega ===
-    st.subheader("❌ Rejeitar Entrega")
+    st.subheader(" Rejeitar Entrega")
     if st.button("Rejeitar Entrega"):
         driver.reject_delivery()
         st.warning("Entrega rejeitada e ocorrência registrada.")
 
-    # === Registrar Ocorrência ===
-    st.subheader("⚠️ Registrar Ocorrência")
+    st.subheader(" Registrar Ocorrência")
     ocorrencia = st.text_input("Descrição da Ocorrência")
     if st.button("Registrar Ocorrência"):
         driver.register_occurance(ocorrencia)
         st.success(f"Ocorrência registrada: {ocorrencia}")
-
-    # === Histórico de Entregas ===
-    st.subheader("📊 Histórico de Entregas")
+        
+    st.subheader(" Histórico de Entregas")
     if st.button("Exibir Histórico"):
         if len(driver) > 0:
             st.info(f"Total de entregas atribuídas: {len(driver)}")
-            st.write(driver._Driver__routes_history)  # acessa histórico interno
-        else:
+            st.write(driver._Driver__routes_history) 
             st.warning("Nenhuma entrega registrada.")
 
-    # === Status e Score ===
-    st.subheader("🧾 Status do Motorista")
+    st.subheader("  Status do Motorista")
     if st.button("Exibir Status"):
         st.info(str(driver))
         st.write(f"Pontuação atual: {driver._score}")
@@ -938,14 +915,13 @@ def driver_page():
 
 #=== Página de Entregas ===
 def deliveries_page():
-    st.title("📦 Área de Entregas")
+    st.title(" Área de Entregas")
     st.markdown("---")
     st.write("Gerencie entregas, atribua motoristas, calcule custos e acompanhe o status.")
 
-    # Inicializa uma entrega na sessão
     if "delivery" not in st.session_state:
         from datetime import datetime
-        from project.models.delivery import Delivery   # ajuste conforme seu projeto
+        from project.models.delivery import Delivery   
 
         st.session_state.delivery = Delivery(
             id_delivery=1,
@@ -959,8 +935,7 @@ def deliveries_page():
         )
     delivery = st.session_state.delivery
 
-    # === Atribuir Motorista ===
-    st.subheader("👨‍💼 Atribuir Motorista")
+    st.subheader(" Atribuir Motorista")
     motorista_nome = st.text_input("Nome do Motorista")
     if st.button("Atribuir Motorista"):
         try:
@@ -969,8 +944,7 @@ def deliveries_page():
         except ValueError as e:
             st.error(str(e))
 
-    # === Iniciar Entrega ===
-    st.subheader("🚚 Iniciar Entrega")
+    st.subheader(" Iniciar Entrega")
     if st.button("Iniciar Entrega"):
         try:
             delivery.start_delivery()
@@ -978,8 +952,7 @@ def deliveries_page():
         except PermissionError as e:
             st.error(str(e))
 
-    # === Finalizar Entrega ===
-    st.subheader("✅ Finalizar Entrega")
+    st.subheader(" Finalizar Entrega")
     if st.button("Finalizar Entrega"):
         try:
             delivery.finish_delivery()
@@ -987,8 +960,7 @@ def deliveries_page():
         except PermissionError as e:
             st.error(str(e))
 
-    # === Cancelar Entrega ===
-    st.subheader("❌ Cancelar Entrega")
+    st.subheader(" Cancelar Entrega")
     motivo_cancelamento = st.text_input("Motivo do Cancelamento")
     if st.button("Cancelar Entrega"):
         try:
@@ -1002,7 +974,6 @@ def deliveries_page():
         custo = delivery.calculate_cost()
         st.info(f"Custo total da entrega: R${custo:.2f}")
 
-   
     st.subheader("Status da Entrega")
     if st.button("Exibir Status"):
         st.info(str(delivery))

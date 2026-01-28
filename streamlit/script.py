@@ -3,6 +3,7 @@ from datetime import date
 import sys
 import os
 
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from project.models.client import Client
@@ -10,6 +11,9 @@ from project.models.pallet import Pallet
 from project.abstracts.loyalty_system import LoyaltySystem
 from project.models.mannager import Manager
 from project.models.client import Client
+from project.models.stock.stock import Stock
+from project.models.product.product import Product
+
 
 
 #! sessões de estado.
@@ -168,7 +172,7 @@ def client_page():
 def product_page():
     st.title("Gestão de Produtos")
     st.markdown("---")
-        if st.button("Adicionar Preço Promocional"):
+    if st.button("Adicionar Preço Promocional"):
             for p in st.session_state.estoque:
                 p.preco_promocional = p.preco_unitario * 0.9  # 10% de desconto
             st.success("Preço promocional aplicado automaticamente!")
@@ -417,7 +421,7 @@ def stock_page():
         if submitted:
             if is_active:
                 try:
-                    # Criar objeto Product
+                
                     produto_obj = Product(
                         name=nome,
                         category=categoria,

@@ -226,7 +226,6 @@ def client_page():
             if client.volume_discount(quantity_pallets):
                 st.success("Desconto aplicado com sucesso!")
 
-
     with st.container():
         st.markdown("### Adicionar Pontos Fidelidade")
 
@@ -237,7 +236,6 @@ def client_page():
         if submitted:
             if client.add_loyalty_points(buy_value):
                 st.success("Pontos adicionados com sucesso!")
-
 
     with st.container():
         st.markdown("### Reivindicar Pontos")
@@ -702,6 +700,33 @@ def management_page():
         else:
             st.warning("Mensagem do Sistema: Nenhum funcionário elegível para promoção.")
 
+    st.markdown("---")
+    
+    
+    st.subheader(" Emissão de Notas Fiscais") 
+    with st.form("nota_fiscal_form"):
+        cliente = st.selectbox("Selecione o Cliente:", [c['nome'] for c in st.session_state.clientes]) 
+        produto = st.selectbox("Selecione o Produto:", [p['nome'] for p in st.session_state.produtos]) 
+        quantidade = st.number_input("Quantidade:", min_value=1, value=1) 
+        desconto = st.slider("Desconto (%)", 0, 30, 0) 
+        emitir = st.form_submit_button("Emitir Nota Fiscal") 
+        
+    produto_selecionado = next((p for p in st.session_state.produtos if p['nome'] == produto), None)
+    
+    if produto_selecionado:
+        valor_unitario = produto_selecionado.get("preco", 9) 
+        valor_total = quantidade * valor_unitario
+        valor_final = valor_total * (1 - desconto/100)
+    
+    st.success("Nota Fiscal Emitida com Sucesso!")
+    st.markdown(f""" ### Nota Fiscal - **Cliente:** {cliente}, 
+                **Produto:** {produto},
+                - **Quantidade:** {quantidade},
+                - **Valor Unitário:** R${valor_unitario:.2f},
+                - **Valor Total:** R${valor_total:.2f,},
+                - **Desconto:** {desconto},
+                %- **Valor Final:** R${valor_final:.2f} """)
+    st.info("A nota fiscal foi registrada no sistema.")
     st.markdown("---")
 
     st.subheader("  Dashboard do Sistema")

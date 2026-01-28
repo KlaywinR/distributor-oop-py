@@ -9,10 +9,8 @@ from project.models.client import Client
 from project.models.pallet import Pallet
 from project.abstracts.loyalty_system import LoyaltySystem
 from project.models.mannager import Manager
-from project.models.stock.stock import Stock
-from project.models.product.product import Product
-from project.models.employee import Employee
-from project.models.seller import Seller
+from project.models.client import Client
+
 
 #! sessões de estado.
 
@@ -68,6 +66,7 @@ def start_page():
             st.session_state["nav"] = "cliente"
             client_page()
     with col2:
+<<<<<<< Updated upstream
         if st.button("Ir Para Estoque"):
             st.session_state["nav"] = "estoque"
             stock_page()
@@ -170,6 +169,115 @@ def client_page():
 def product_page():
     st.title("Gestão de Produtos")
     st.markdown("---")
+=======
+        if st.button("Adicionar Preço Promocional"):
+            for p in st.session_state.estoque:
+                p.preco_promocional = p.preco_unitario * 0.9  # 10% de desconto
+            st.success("Preço promocional aplicado automaticamente!")
+
+    if st.session_state.mostrar_form:
+        with st.form("form_produto"):
+            name = st.text_input("Nome do produto:")
+            price = st.number_input("Preço unitário:")
+            quantity = st.number_input("Quantidade:")
+
+            submitted = st.form_submit_button("Cadastrar")
+            if submitted:
+                st.session_state.produtos.append({
+                    'nome': name,
+                    'preco': price,
+                    'quantidade': quantity
+                })
+                st.success(f"Produto '{name}' cadastrado com sucesso!")
+
+
+
+def client_page():
+    st.subheader("Clientes")
+    st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
+
+    if "client" not in st.session_state:
+        st.session_state.client = Client(
+            "Atacadão", 123456, 12453, 10000,
+            "Preferências", "Ativo",
+            date.today(), "Endereço", "Telefone", "Tipo"
+        )
+    client = st.session_state.client
+
+    #Comprar produtos
+    with st.container():
+        st.markdown("### 🛒 Comprar Produtos")
+
+        with st.form("comprar_produto"):
+            produto = st.text_input("Produto que deseja comprar")
+            submitted = st.form_submit_button("Comprar")
+
+        if submitted:
+            if produto in st.session_state.produtos:
+                client.buy(produto)
+                st.success(f"Compra de '{produto}' realizada com sucesso!")
+            else:
+                st.error("Produto não encontrado")
+
+            
+    with st.container():
+        st.markdown("### 📊 Desconto por volume")
+
+        with st.form("desconto_volume"):
+            quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
+            submitted = st.form_submit_button("Aplicar desconto")
+
+        if submitted:
+            if client.volume_discount(quantity_pallets):
+                st.success("Desconto aplicado com sucesso!")
+
+
+    with st.container():
+        st.markdown("### ⭐ Adicionar Pontos Fidelidade")
+
+        with st.form("pontos_fidelidade"):
+            buy_value = st.number_input("Valor da compra", min_value=0.0)
+            submitted = st.form_submit_button("Adicionar pontos")
+
+        if submitted:
+            if client.add_loyalty_points(buy_value):
+                st.success("Pontos adicionados com sucesso!")
+
+
+    with st.container():
+        st.markdown("### 🎁Reivindicar Pontos")
+        if st.button("🎁Reivindicar Pontos"):
+            st.info("Funcionalidade de resgate de pontos.")
+            client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
+            if client.claim_points():
+                st.success("Pontos resgatados com sucesso!") 
+
+    with st.container():
+        st.markdown("### 🔍Checar Promoções")
+        if st.button("🔍Checar Promoções"):
+            st.info("Funcionalidade de promoções em desenvolvimento.")
+            client = Client("Atacadão", 123456, 12453, 10000, "Preferências", "Ativo", date.today(), "Endereço", "Telefone", "Tipo")
+            if client.check_promotion(buy_value=st.number_input("Valor da compra:")):
+                st.success("Promoção verificada com sucesso!")
+
+    with st.container():
+        st.markdown("### 💬 Avaliar Serviço")
+
+        with st.form("avaliacao_servico"):
+            rating = st.number_input("Avaliação (1 a 5)", 1, 5)
+            comment = st.text_area("Comentário")
+            submitted = st.form_submit_button("Enviar avaliação")
+
+        if submitted:
+            if client.evaluate_service(rating, comment):
+                st.success("Avaliação enviada com sucesso!")
+
+
+                comment = st.text_area("Deixe sua avaliação:")
+                if st.button("Enviar Avaliação"):
+                    if client.evaluate_service(rating=rating, comment=comment):
+                        st.success("Avaliação enviada com sucesso!")
+>>>>>>> Stashed changes
 
     st.subheader("Paletes Disponíveis")
     if st.session_state.produtos:
@@ -630,9 +738,24 @@ def management_page():
             menu = "Área Estoque"
             stock_page()
     with col2:
+<<<<<<< Updated upstream
         if st.button("View Clients"):
             menu = "Área Cliente"
             client_page()
+=======
+        if st.button("Remover Pallet"):
+            nomes_estoque = [p.nome for p in st.session_state.estoque]
+            if nomes_estoque:
+                nome_remover = st.selectbox("Escolha o pallet para remover:", nomes_estoque)
+                if st.button("Confirmar remoção"):
+                    st.session_state.estoque = [p for p in st.session_state.estoque if p.nome != nome_remover]
+                    st.success(f"Pallet '{nome_remover}' removido!")
+                    st.info(f"Total de pallets no estoque: {len(st.session_state.estoque)}")
+            else:
+                st.warning("Não há pallets no estoque para remover.")
+ 
+    # Mostrar Estoque
+>>>>>>> Stashed changes
     with col3:
         if st.button("View Employees"):
             menu = "Área Funcionários"

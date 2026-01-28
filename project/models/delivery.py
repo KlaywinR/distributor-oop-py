@@ -6,7 +6,10 @@ from datetime import datetime, timedelta
 
 
 class Delivery(DelayControlMixin, AbstractDelivery):
-    
+    """
+        - DelayControlMixin: controla atrasos e ocorrências.
+        - AbstractDelivery: define a interface base de uma entrega.
+    """
     STATUS_PENDING = "PENDING"
     STATUS_ASSIGNED = "ASSIGNED"
     STATUS_IN_TRANSIT = "IN_TRANSIT"
@@ -37,22 +40,30 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         
     @property
     def id_veiculo(self): 
+        """Retorna o identificador do veículo."""
         return self.__id_veiculo   
             
     @property
     def type(self): 
+        """Retorna o tipo do veículo utilizado na entrega."""
         return self.__type_vehicle
     
          
     @property
     def capacity(self): 
+        """Retorna a capacidade do veículo."""
         return self.__id_vehicle   
             
     @property
     def status_vehicle(self): 
+        """Retorna o status atual do veículo."""
         return self.__status_vehicle
     
     def assign_driver(self, driver):
+        """
+        Atribui um motorista à entrega.
+            - A atribuição só é permitida quando a entrega estiver pendente.        
+        """
         if self._status != self.STATUS_PENDING:
             raise ValueError("O motorista só pode ser solicitado quando existir entregas pendentes..")
         self._driver = driver 
@@ -60,6 +71,13 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         self._register_event("Motorista Atribuido")
         
     def calculate_cost(self):
+        """
+          Calcula o custo total da entrega.
+            - Valor base
+            - Distância percorrida
+            - Taxa de entrega expressa
+            - Penalidade por atraso
+        """
         cost = self.BASE_PRICE + self._distance_km * self.PRICE_PER_KM
         
         if self._express:
@@ -69,15 +87,19 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         return round(cost, 2)
         
     def can_start(self) -> bool:
+        """Verifica se a entrega pode ser iniciada."""
         return self._status == self.STATUS_ASSIGNED and self._driver is not None
 
     def can_finish(self) -> bool:
+        """Verifica se a entrega pode ser finalizada."""
         return self._status == self.STATUS_IN_TRANSIT
     
     def can_cancel(self) -> bool:
+        """Verifica se a entrega pode ser cancelada"""
         return self._status not in (self.STATUS_DELIVERED, self.STATUS_CANCELED)
     
     def is_active(self) -> bool:
+        """Verifica se a entrega está ativa no sistema."""
         return self._status in (
             self.STATUS_ASSIGNED,
             self.STATUS_IN_TRANSIT,
@@ -85,12 +107,14 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         )
         
     def _register_event(self, description: str):
+        """Registra um evento na linha do tempo da entrega."""
         self._timeline.append({
             "event": description,
             "date": datetime.now()
         })
         
     def get_timeline(self):
+        """Retorna o histórico de eventos da entrega."""
         return self._timeline
     
     def start_delivery(self):
@@ -112,6 +136,7 @@ class Delivery(DelayControlMixin, AbstractDelivery):
       self.notify_costumer("Entrega Realizada com sucesso!")
       
     def cancel_delivery(self, reason: str):
+        """Cancela a entrega informando o motivo."""
         if not self.can_cancel():
             raise PermissionError("A sua entrega não pode ser cancelada")
 
@@ -124,7 +149,9 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         print(f"[CLIENTE] Entrega {self._id_delivey}: {message}")
         
     def __len__(self):
+        """Retorna a quantidade de ocorrencias registradas"""
         return len(self._occurances)
     
     def __str__(self): 
+        """Representação textual da entrega"""
         return (f"Veículo {self.__id_veiculo},- {self.__tipo} " f"({self.__placa}), Capacidade: {self.__capacidade}kg, " f"Status: {self.__status.value}, " f"Motorista: {self.__motorista.nome if self.__motorista else 'Nenhum'}")

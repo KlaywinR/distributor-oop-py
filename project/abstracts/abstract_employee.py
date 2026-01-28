@@ -8,31 +8,42 @@ class AbstractEmployee(ABC):
     
     @abstractmethod
     def register_entry(self):
+        """
+        Regra de registro de entrada do funcionário
+        """
         pass
-    
-    """
-    Regra de registro da saída do funcionário
-    """
+       
     @abstractmethod
-    
     def register_exit(self):
+        """
+        Regra de registro da saída do funcionário
+        """
         pass
     
-    """
-    Regra do cálculo matemático das horas extras do funcionário, é levada em conta a atual jornada trabalhista de oito horas (8).
-    """
     @abstractmethod
     def calculate_overtime(self, day_type="Normal"):
+        """
+        Cálculo matemático das horas extras, é levada em conta a atual jornada trabalhista de oito horas (8).
+        """
         pass 
     
     @abstractmethod
     def request_vacation(self):
+        """
+        Pedido de férias por parte do funcionário
+        """
         pass
     
     @abstractmethod
     def request_raise(self,percentage):
+        """
+        Pedido de aumento por parte do funcionário
+        """
         pass
     
     @abstractmethod
     def status_employee(self):
+        """
+        Status do funcionário
+        """
         pass

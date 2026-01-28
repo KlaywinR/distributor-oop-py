@@ -4,7 +4,9 @@ from ..abstracts.abstract_employee import AbstractEmployee
 from ..mixins.clock_mixin import ClockMixin
 
 class Employee(ClockMixin, AbstractEmployee):
-    def __init__(self, name, shift, cpf, salary, id_employee, departament, status_employee, admission_date, contract_type, position, meta_monthly, overtime, hours_worked):
+    
+    def __init__(self, name, shift, cpf, salary, id_employee, departament, status_employee, 
+                 admission_date, contract_type, position, meta_monthly, overtime, hours_worked):
         self.__name = name 
         self.__shift = shift
         self.__id_employee = id_employee
@@ -22,20 +24,26 @@ class Employee(ClockMixin, AbstractEmployee):
 
     @property
     def name(self):
+        """
+        Retorna o nome do funcionário.
+        """
         return self.__name 
     
     @name.setter
     def name(self, value):
+        """Atualiza o nome do funcionário."""
         if not value:
             raise ValueError("Nome Inválido")
         self.__name = value
 
     @property
     def salary(self):
+        """Retorna o salario"""
         return self.__salary
     
     @salary.setter
     def salary(self, value):
+        """Muda o valor do salário"""
         if value < 0:
             raise ValueError("Salário Inválido")
         self.__salary = value
@@ -43,13 +51,18 @@ class Employee(ClockMixin, AbstractEmployee):
     
     @property
     def meta_monthly(self):
+        """Mostra a mete mensal do funcionario"""
         return self.__meta_monthly
 
     def status_employee(self):
+        """Retorna o status de employee"""
         return self.__status_employee
     
     def review_stock(self, stock: list[dict]) -> list[dict]:
-
+        """
+            - Lista de dicionários representando produtos do estoque
+            - Lista com informações essenciais do estoque revisado
+        """
         reviewed_stock  = []
         
         for item in stock:
@@ -61,11 +74,15 @@ class Employee(ClockMixin, AbstractEmployee):
             })
                     
         return reviewed_stock
-               
-#calculo da hora extra com base no tipo de dia trabalhado - normal, domingo o feriado:
-#é considerado aspenas as horas que passam da jornada de 8 horas e aplica o adicional de 50 ou 100
 
     def calculate_overtime(self, day_type = "Normal"):
+        """
+        Calcula o valor da hora extra do funcionário.
+        Considera apenas as horas trabalhadas acima de 8h diárias.
+        Aplica adicional de:
+        - 50% em dias normais
+        - 100% em domingos ou feriados
+        """
         standard_daily_hours = 8 #jor. padrao
         
         if self.__hours_worked <= standard_daily_hours:
@@ -79,9 +96,8 @@ class Employee(ClockMixin, AbstractEmployee):
         overtime_value = extra_hours * hourly_value * overtime_rate
         return round(overtime_value, 2)
             
-#? deve ter um método do GERENTE p aprovar as ferias:
-
     def request_vacation(self):
+        """Solicitação de Ferias"""
         if self.__status_employee.lower() == "ferias":
             return "O funcionário se encontra em recesso."
   
@@ -100,6 +116,9 @@ class Employee(ClockMixin, AbstractEmployee):
         }
 
     def request_raise(self, percentage):
+        """
+        - Percentuais acima de 15% exigem aprovação da gerência.
+        """
         if percentage <= 0:
             return "Este percentual de aumento é inválido."
         request_raise = {
@@ -110,8 +129,7 @@ class Employee(ClockMixin, AbstractEmployee):
             "request_date": datetime.now(),
             "status": "Aguardando a avaliação do Gerente"
         }
-    
-    #regra: acima de 15% precisa de aprovaçãoo do gerente:
+
         if percentage > 15:
             request_raise["Observação"] = "Aumentos acima de 15% necessitam da análise da Gerência"
         return {

@@ -2,7 +2,10 @@
 from datetime import datetime
 
 class AuditMixin:
-#! principio SRP 
+    """
+    Registrar logs de auditoria + Adição do SRP onde encapsula o comportamento da auditoria.  
+    """
+
     def _log(self, message:  str):
         if not hasattr(self, "_audit_logs"):
             self._audit_logs = []

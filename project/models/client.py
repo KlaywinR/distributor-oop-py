@@ -3,9 +3,12 @@ from project.abstracts.loyalty_system import LoyaltySystem
 from project.mixins.review_mixin import ReviewMixin
 from project.abstracts.abstract_client import AbstractClient
 
-
-
 class Client(ReviewMixin, AbstractClient, LoyaltySystem): 
+    """
+        ReviewMixin: fornece funcionalidades de avaliação do serviço.
+        AbstractClient: define a interface base de um cliente.
+        LoyaltySystem: gerencia regras de acúmulo e resgate de pontos.
+    """
     def __init__(self, name, cnpj, id_client, credit_limit, costumer_preferences, client_status, registration_date, address, phone, client_type, loyalty_points=0):
         self.__name = name
         self.__cnpj = cnpj
@@ -36,6 +39,11 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         return self.__credit_limit
 
     def buy(self, product, quantity_pallets: int, unit_value_pallet: float) -> float:
+        """
+        Registra uma compra realizada pelo cliente.
+        - O valor final considera descontos por volume e
+         adiciona pontos de fidelidade quando aplicável.
+        """
         
         #v. bruto
         gross_value = quantity_pallets * unit_value_pallet
@@ -44,7 +52,7 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         discount_rate = self.volume_discount(quantity_pallets)
         discount_value = gross_value * discount_rate
         
-        #v. final c desconto add.
+        #v. final com desconto adicionado.
         final_value = gross_value - discount_value
 
         self.__purchase_history.append({
@@ -59,6 +67,9 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         return final_value
     
     def volume_discount(self, quantity_pallets):
+        """
+        Calcula o percentual de desconto com base no volume comprado.
+        """
         if quantity_pallets >= 75:
             return 0.30
     
@@ -73,13 +84,18 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         else: 
             return 0
     
-#adiciona pontos acumulativos de acordo com o valor da conta; neste quesito é creditado pontos uando o cliente faz compras acima de 1 pallet de produtos.
     def add_loyalty_points(self, buy_value):
+        """
+         Adiciona pontos de fidelidade ao cliente.
+        - A cada R$10,00 gastos, 1 ponto é creditado,
+        desde que a compra seja superior a 1 pallet.
+        """
         points = int(buy_value // 10)
         self.__loyalty_points += points
     
-#método de resgate de pontos acumulativos; acima de 0; mostra a quantidade de pontos arrecadados/ou não pelo cliente 
+ 
     def claim_points(self):
+        """Resgate dos pontos de fidelidade acumulados."""
         if self.__loyalty_points <= 0:
             return "O Cliente não possui pontos para resgatar"
         
@@ -88,8 +104,12 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         
         return f"O cliente arrecadou {points_redeemed} pontos com sucesso!"
     
- #cliente checa se recebe/aplica preco promocional no valor da compra; caso possua desconto ou frete grátis ele é informado automaticamente.
+    
     def check_promotion(self, buy_value):
+        """
+        Verifica e aplica benefícios promocionais com base
+        nos pontos de fidelidade acumulados.
+        """
         discount = 0
         
         if self.__loyalty_points >= 500:
@@ -104,10 +124,12 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
             "Valor Final": value_with_discount
         }
         
-#mecanização de categoria do cliente; é levado em conta o valor que ele deixa no caixa da distribuidora
-# (criado com dicionários)
-    def client_category(self):
         
+    def client_category(self):
+        """
+        Define a categoria comercial do cliente com base
+        no faturamento total acumulado.
+        """
         DIAMOND = 1000000
         GOLD = 300000
         SILVER = 100000
@@ -159,18 +181,11 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
                 ]
             }
              
-    def summary_client(self):
-        return {
-            "Name": self.__name,
-            "Tipo de Cliente": self.__client_type,
-            "Categoria": self.client_category(),
-            "Pontos de Fidelidade": self.__loyalty_points,
-            "Total de Compras" : self.__purchase_history
-        }
-        
-#verifica se o clinete está ativoo conforme a data presebte na lista de compras:
     def client_status(self):
-        
+        """
+        Verifica o status do cliente no sistema.
+            - O cliente é considerado ativo se realizou compras nos ultimos 90 dias.
+        """
         if self.__client_status == "BLOQUEADO":
             return "Cliente Inativo no Sistema"
         
@@ -186,10 +201,6 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
     def evaluate_service(self, rating: int, comment: str = ""):
         """
         Permite que o cliente avalie o serviço da distribuidora.
-        
-        :param rating: Nota de 1 a 5 (satisfação do cliente).
-        :param comment: Comentário opcional sobre o serviço.
-        :return: Mensagem de confirmação.
         """
         if rating < 1 or rating > 5:
             raise ValueError("A nota deve estar entre 1 e 5")
@@ -203,3 +214,14 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         self._reviews.append(review)
         
         return f"Avaliação registrada com sucesso! Nota: {rating}, Comentário: {comment if comment else 'Sem comentário'}"
+
+    def summary_client(self):
+        """ Retorna um resumo completo do cliente."""
+        return {
+            "Name": self.__name,
+            "Tipo de Cliente": self.__client_type,
+            "Categoria": self.client_category(),
+            "Pontos de Fidelidade": self.__loyalty_points,
+            "Total de Compras" : self.__purchase_history
+        }
+        

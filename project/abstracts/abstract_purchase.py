@@ -4,6 +4,9 @@ from abc import ABC
 from datetime import datetime
 
 class AbstractPurchase(InterfacePurchase, ABC):
+    """
+    Cria uma classe base para compra.
+    """
     def __init__(self, client, seller, product, quantity_pallets):
         self._client = client
         self._seller = seller

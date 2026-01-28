@@ -8,6 +8,9 @@ class ClockMixin:
     """
     
     def register_entry(self):
+        """
+        Registra o horário de entrada de um funcionário.
+        """
         if getattr(self,"_entry_time", None) is not None:
             return "Sua entrada já foi registrada..."
         self._entry_time = datetime.now()
@@ -15,6 +18,9 @@ class ClockMixin:
     
     
     def register_exit(self):
+        """
+        Registra a saida do funcionario do sistema.
+        """
         if getattr(self,"_entry_time", None):
             return "A entrada não foi registrada"
         

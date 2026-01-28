@@ -3,6 +3,9 @@ from project.interfaces.interface_manager import InterfaceManager
 from abc import ABC
 
 class AbstractManager(InterfaceManager, ABC):
+    """"
+        Inicializa-se um gerebte com nome e registro.
+    """
     def __init__(self, name, registration):
         self._name = name 
         self._registration = registration

@@ -3,6 +3,14 @@ from project.abstracts.abstract_purchase import AbstractPurchase
 from project.mixins.mixin_purchase import MixinPurchase
 
 class Purchase(AbstractPurchase, MixinPurchase):
+    """
+    - AbstractPurchase para garantir um contrato mínimo de comportamento;
+    - MixinPurchase para reutilizar funcionalidades auxiliares (ex: logs)
+    - SRP: compra cuida apenas do processo de compra.
+    - OCP: promoções e impostos podem ser estendidos.
+    - DI: depende de abstrações.
+    """
+    
     def __init__(self, client, seller, product, quantity_pallets: int, unit_value_pallet: int):
         super().__init__(client, seller, product, quantity_pallets)
         self._logs = []
@@ -10,31 +18,43 @@ class Purchase(AbstractPurchase, MixinPurchase):
         
     @property
     def status(self):
+        """Retorna o status atual da compra"""
         return self._status
 
     @property
     def total_value(self):
+        """Retorna o vaçlo total da compra"""
         return self._total_value
     
     def _apply_promotion(self) -> float:
+        """Aplica regras de preço promocional ao produto."""
         return self._product.current_price()
     
     def _validate_stock(self):
+        """ Valida se há pallets suficientes disponíveis em estoque."""
         avaiLable = self._product.available_pallets()
         if self._quantity_pallets > avaiLable:
             raise ValueError(f"Estoque Insuficiente." f"Disponivel: {avaiLable} pallets ao todo")
                 
     def _validate_credit_limit(self):
+        """ Verifica se o cliente possui limite de crédito suficiente."""
         total = self.calculate_total()
         if total > self._client.credit_limit:
             raise PermissionError("Limite de crédito do cliente excedido!")
                   
     def calculate_taxes(self, value: float) -> float:
+        """ Calcula os impostos sobre o valor informado."""
         tax_rate = 0.12
         return value * tax_rate
     
     def calculate_total(self):
-        
+        """
+         - Preço unitário com promoção;
+         - Desconto por volume;
+         - Cálculo de impostos;
+         - Registro de log financeiro.
+
+        """
         unit_price = self._apply_promotion()
         
         gross_value = unit_price * self._quantity_pallets
@@ -56,7 +76,7 @@ class Purchase(AbstractPurchase, MixinPurchase):
         return final_value
     
     def simulate_purchase(self):
-        
+        """ Simula uma compra sem alterar estoque ou status."""
         self._validate_stock()
         unit_price = self._apply_promotion()
         
@@ -72,11 +92,13 @@ class Purchase(AbstractPurchase, MixinPurchase):
         }
        
     def reserve_pallets(self):
+        """ Reserva pallets no estoque antes da finalização da compra."""
         self._validate_stock()
         self._product.reserve_pallets(self._quantity_pallets)
         self.register_log("Pallets Reservados")
         
     def set_payment_method(self, method: str):
+        """Define o método de pagamento da compra"""
         allowed = ["PIX", "CREDIT", "DEBIT", "BOLETO"]
         if method not in allowed:
             raise ValueError("Método de pagamento inválido")
@@ -84,6 +106,7 @@ class Purchase(AbstractPurchase, MixinPurchase):
         self.register_log(f"Método de pagamento escolhido pelo cliente: {method}")
     
     def finalize_purchase(self):
+        """ Finaliza a compra executando todas as validações necessárias."""
         if self.status != "PENDING":
             raise RuntimeError("A compra já foi processada")
         self._validate_stock()
@@ -112,15 +135,18 @@ class Purchase(AbstractPurchase, MixinPurchase):
         return self.total_value
     
     def mark_as_approved(self):
+        """ Marca a compra como aprovada pela gerência."""
         self._status = "APPROVED"
             
     def cancel_purchase(self):
+        """ Cancela a compra, desde que ainda não tenha sido finalizada."""
         if self._status == "COMPLETED":
             raise RuntimeError("Compra ja finalizada, não pode ser cancelada!")
         self._status = "CANCELED"
         self.register_log("Compra Cancelada")
         
     def issue_invoice(self):
+        """Emite a nota fiscal da compra finalizada."""
         if self._status != "COMPLETED":
          raise RuntimeError("Compra não finalizada")
 
@@ -137,6 +163,7 @@ class Purchase(AbstractPurchase, MixinPurchase):
         return invoice
 
     def __str__(self):
+        """Representação Textual"""
         return (
             f"Compra do Cliente: {self._client.name}\n"
             f"Produto: {self._product.name}\n"

@@ -66,7 +66,6 @@ def start_page():
             st.session_state["nav"] = "cliente"
             client_page()
     with col2:
-<<<<<<< Updated upstream
         if st.button("Ir Para Estoque"):
             st.session_state["nav"] = "estoque"
             stock_page()
@@ -169,7 +168,6 @@ def client_page():
 def product_page():
     st.title("Gestão de Produtos")
     st.markdown("---")
-=======
         if st.button("Adicionar Preço Promocional"):
             for p in st.session_state.estoque:
                 p.preco_promocional = p.preco_unitario * 0.9  # 10% de desconto
@@ -277,7 +275,6 @@ def client_page():
                 if st.button("Enviar Avaliação"):
                     if client.evaluate_service(rating=rating, comment=comment):
                         st.success("Avaliação enviada com sucesso!")
->>>>>>> Stashed changes
 
     st.subheader("Paletes Disponíveis")
     if st.session_state.produtos:
@@ -738,11 +735,9 @@ def management_page():
             menu = "Área Estoque"
             stock_page()
     with col2:
-<<<<<<< Updated upstream
         if st.button("View Clients"):
             menu = "Área Cliente"
             client_page()
-=======
         if st.button("Remover Pallet"):
             nomes_estoque = [p.nome for p in st.session_state.estoque]
             if nomes_estoque:
@@ -755,7 +750,6 @@ def management_page():
                 st.warning("Não há pallets no estoque para remover.")
  
     # Mostrar Estoque
->>>>>>> Stashed changes
     with col3:
         if st.button("View Employees"):
             menu = "Área Funcionários"
@@ -999,19 +993,17 @@ def deliveries_page():
         except PermissionError as e:
             st.error(str(e))
 
-    # === Calcular Custo ===
-    st.subheader("💰 Calcular Custo da Entrega")
+    st.subheader("Calcular Custo da Entrega")
     if st.button("Calcular Custo"):
         custo = delivery.calculate_cost()
         st.info(f"Custo total da entrega: R${custo:.2f}")
 
-    # === Status da Entrega ===
-    st.subheader("📊 Status da Entrega")
+   
+    st.subheader("Status da Entrega")
     if st.button("Exibir Status"):
         st.info(str(delivery))
 
-    # === Linha do Tempo ===
-    st.subheader("🕒 Histórico de Eventos")
+    st.subheader("Histórico de Eventos")
     if st.button("Exibir Timeline"):
         timeline = delivery.get_timeline()
         for evento in timeline:

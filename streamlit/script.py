@@ -47,7 +47,9 @@ menu = st.sidebar.radio(
         "Área Estoque", 
         "Área Pedidos", 
         "Área Gerente",
-        "Área Vendedor"
+        "Área Vendedor",
+        "Área Motorista",
+        "Área de Entregas"
     ]
 ) 
 
@@ -737,6 +739,161 @@ def seller_page():
     st.markdown("---")
     st.info(str(seller))
 
+#== Area do Motorista ===
+def driver_page():
+    st.title("🚚 Área do Motorista")
+    st.markdown("---")
+    st.write("Gerencie entregas, ocorrências, disponibilidade e status do motorista.")
+
+    # Inicializa um motorista na sessão
+    if "driver" not in st.session_state:
+        from datetime import date
+        from project.models.driver import Driver   
+        st.session_state.driver = Driver(
+            id_driver=1,
+            name="José Ferreira",
+            cpf="987.654.321-00",
+            cnh_category="D",
+            cnh_expiration=date(2027, 5, 20),
+            max_capacity_pallets=100,
+            region="Nordeste"
+        )
+    driver = st.session_state.driver
+
+    # === Verificar CNH ===
+    st.subheader("📄 Validade da CNH")
+    if st.button("Verificar CNH"):
+        if driver.cnh_is_valid():
+            st.success("CNH válida! ✅")
+        else:
+            st.error("CNH vencida ❌")
+
+    # === Verificar se pode operar ===
+    st.subheader("⚙️ Disponibilidade para Operar")
+    if st.button("Verificar Disponibilidade"):
+        if driver.can_operate():
+            st.success("Motorista pode operar 🚚")
+        else:
+            st.error("Motorista não pode operar ❌")
+
+    # === Atribuir Entrega ===
+    st.subheader("📦 Atribuir Entrega")
+    entrega_nome = st.text_input("Nome da Entrega")
+    if st.button("Atribuir Entrega"):
+        try:
+            driver.assign_delivery(entrega_nome)
+            st.success(f"Entrega '{entrega_nome}' atribuída ao motorista.")
+        except PermissionError as e:
+            st.error(str(e))
+
+    # === Rejeitar Entrega ===
+    st.subheader("❌ Rejeitar Entrega")
+    if st.button("Rejeitar Entrega"):
+        driver.reject_delivery()
+        st.warning("Entrega rejeitada e ocorrência registrada.")
+
+    # === Registrar Ocorrência ===
+    st.subheader("⚠️ Registrar Ocorrência")
+    ocorrencia = st.text_input("Descrição da Ocorrência")
+    if st.button("Registrar Ocorrência"):
+        driver.register_occurance(ocorrencia)
+        st.success(f"Ocorrência registrada: {ocorrencia}")
+
+    # === Histórico de Entregas ===
+    st.subheader("📊 Histórico de Entregas")
+    if st.button("Exibir Histórico"):
+        if len(driver) > 0:
+            st.info(f"Total de entregas atribuídas: {len(driver)}")
+            st.write(driver._Driver__routes_history)  # acessa histórico interno
+        else:
+            st.warning("Nenhuma entrega registrada.")
+
+    # === Status e Score ===
+    st.subheader("🧾 Status do Motorista")
+    if st.button("Exibir Status"):
+        st.info(str(driver))
+        st.write(f"Pontuação atual: {driver._score}")
+        st.write(f"Ocorrências registradas: {driver._Driver__occurances}")
+
+#=== Página de Entregas ===
+def deliveries_page():
+    st.title("📦 Área de Entregas")
+    st.markdown("---")
+    st.write("Gerencie entregas, atribua motoristas, calcule custos e acompanhe o status.")
+
+    # Inicializa uma entrega na sessão
+    if "delivery" not in st.session_state:
+        from datetime import datetime
+        from project.models.delivery import Delivery   # ajuste conforme seu projeto
+
+        st.session_state.delivery = Delivery(
+            id_delivery=1,
+            estimated_hours=5,
+            distance_km=120,
+            id_vehicle="ABC-1234",
+            type_vehicle="Caminhão",
+            status_vehicle="Disponível",
+            capacity_vehicle=2000,
+            express=True
+        )
+    delivery = st.session_state.delivery
+
+    # === Atribuir Motorista ===
+    st.subheader("👨‍💼 Atribuir Motorista")
+    motorista_nome = st.text_input("Nome do Motorista")
+    if st.button("Atribuir Motorista"):
+        try:
+            delivery.assign_driver(motorista_nome)
+            st.success(f"Motorista {motorista_nome} atribuído à entrega.")
+        except ValueError as e:
+            st.error(str(e))
+
+    # === Iniciar Entrega ===
+    st.subheader("🚚 Iniciar Entrega")
+    if st.button("Iniciar Entrega"):
+        try:
+            delivery.start_delivery()
+            st.success("Entrega iniciada com sucesso!")
+        except PermissionError as e:
+            st.error(str(e))
+
+    # === Finalizar Entrega ===
+    st.subheader("✅ Finalizar Entrega")
+    if st.button("Finalizar Entrega"):
+        try:
+            delivery.finish_delivery()
+            st.success("Entrega finalizada com sucesso!")
+        except PermissionError as e:
+            st.error(str(e))
+
+    # === Cancelar Entrega ===
+    st.subheader("❌ Cancelar Entrega")
+    motivo_cancelamento = st.text_input("Motivo do Cancelamento")
+    if st.button("Cancelar Entrega"):
+        try:
+            delivery.cancel_delivery(motivo_cancelamento)
+            st.warning(f"Entrega cancelada: {motivo_cancelamento}")
+        except PermissionError as e:
+            st.error(str(e))
+
+    # === Calcular Custo ===
+    st.subheader("💰 Calcular Custo da Entrega")
+    if st.button("Calcular Custo"):
+        custo = delivery.calculate_cost()
+        st.info(f"Custo total da entrega: R${custo:.2f}")
+
+    # === Status da Entrega ===
+    st.subheader("📊 Status da Entrega")
+    if st.button("Exibir Status"):
+        st.info(str(delivery))
+
+    # === Linha do Tempo ===
+    st.subheader("🕒 Histórico de Eventos")
+    if st.button("Exibir Timeline"):
+        timeline = delivery.get_timeline()
+        for evento in timeline:
+            st.write(f"- {evento['event']} em {evento['date'].strftime('%d/%m/%Y %H:%M:%S')}")
+
 
 
 #=== Navegação Principal ===
@@ -754,3 +911,7 @@ elif menu == "Área Gerente":
     management_page()
 elif menu == "Área Vendedor":
     seller_page()
+elif menu == "Área Motorista":
+    driver_page()
+elif menu == "Área Entregas":
+    deliveries_page()

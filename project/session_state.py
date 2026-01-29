@@ -1,6 +1,6 @@
 import streamlit as st
-from project.models.stock.stock import Stock
-
+from models.stock.stock import Stock
+ 
 def init_session_state():
     for key in ["estoque", "produtos", "reservas", "clientes", "funcionarios", "entregas"]:
         if key not in st.session_state:

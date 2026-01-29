@@ -2,6 +2,8 @@ import streamlit as st
 from datetime import date
 from project.models.client import Client
 
+
+
 def print_client_page():
     st.subheader("Clients")
     st.markdown("___")

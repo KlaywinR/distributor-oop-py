@@ -4,7 +4,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from session_state import init_session_state
+#from session_state import init_session_state
 from modules.pages.start_page import print_start_page
 from modules.pages.stock_page import print_stock_page
 from modules.pages.orders_page import print_orders_page
@@ -13,6 +13,10 @@ from modules.pages.seller_page import print_seller_page
 from modules.pages.deliveries_page import print_deliveries_page
 from modules.pages.driver_page import print_driver_page
 from modules.pages.client_page import print_client_page
+
+
+from project.session_state import init_session_state
+
 
 
 st.set_page_config(

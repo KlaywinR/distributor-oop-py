@@ -1,10 +1,10 @@
 import streamlit as st
-from pages import client_page
-from pages import stock_page
-from pages import orders_page
+from modules.pages import client_page
+from modules.pages import stock_page
+from modules.pages import orders_page
 
 
-def start_page():
+def print_start_page():
     st.title("Sistema DistriSys")
     st.markdown("---")
 

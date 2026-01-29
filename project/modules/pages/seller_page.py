@@ -3,7 +3,7 @@ from datetime import date
 from project.models.seller import Seller  
 
   
-def seller_page():
+def print_seller_page():
     st.title(" Área do Vendedor")
     st.markdown("---")
     st.write("Gerencie suas vendas, clientes atendidos, comissões e metas mensais.")

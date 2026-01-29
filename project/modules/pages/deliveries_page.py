@@ -3,7 +3,7 @@ from datetime import datetime
 from project.models.delivery import Delivery   
 
 
-def deliveries_page():
+def print_deliveries_page():
     st.title(" Área de Entregas")
     st.markdown("---")
     st.write("Gerencie entregas, atribua motoristas, calcule custos e acompanhe o status.")

@@ -1,6 +1,6 @@
 import streamlit as st
 
-def orders_page():
+def print_orders_page():
     st.subheader("Gestão de Pedidos")
     st.markdown("---")
     st.write("Esta Área é dedicada ao registro, acompanhamento e análise de pedidos dos clientes.")

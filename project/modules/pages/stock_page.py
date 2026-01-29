@@ -3,8 +3,7 @@ import streamlit as st
 from project.models.product.product import Product
 
 
-
-def stock_page():
+def print_stock_page():
     st.subheader("Gestão Total do Estoque")
     st.markdown("---")
 

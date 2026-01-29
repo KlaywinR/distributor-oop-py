@@ -1,9 +1,9 @@
 import streamlit as st
-from pages import stock_page
-from pages import client_page
+from modules.pages import stock_page
+from modules.pages import client_page
 
 
-def management_page():
+def print_management_page():
     st.title(" Gerênciamento Geral")
     st.markdown("---")
     st.write("Área dedicada ao gerenciamento de compras, descontos, funcionários e relatórios estratégicos.")

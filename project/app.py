@@ -1,15 +1,18 @@
 import streamlit as st
-from ..streamlit.state.session_state import init_session_state
+import sys
+import os
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from ..streamlit.pages.start_page import start_page
-from ..streamlit.pages import stock_page
-from ..streamlit.pages import orders_page
-from ..streamlit.pages import management_page
-from ..streamlit.pages import seller_page
-from ..streamlit.pages import deliveries_page
-from ..streamlit.pages import driver_page
-from ..streamlit.pages import client_page
+from session_state import init_session_state
+from modules.pages.start_page import print_start_page
+from modules.pages.stock_page import print_stock_page
+from modules.pages.orders_page import print_orders_page
+from modules.pages.management_page import print_management_page
+from modules.pages.seller_page import print_seller_page
+from modules.pages.deliveries_page import print_deliveries_page
+from modules.pages.driver_page import print_driver_page
+from modules.pages.client_page import print_client_page
 
 
 st.set_page_config(
@@ -34,18 +37,18 @@ menu = st.sidebar.radio(
 )
 
 if menu == "Tela Inicial":
-    start_page()
+    print_start_page()
 elif menu == "Área Cliente":
-    client_page()
+    print_client_page()
 elif menu == "Área Estoque":
-    stock_page()
+    print_stock_page()
 elif menu == "Área Pedidos":
-    orders_page()
+    print_orders_page()
 elif menu == "Área Gerente":
-    management_page()
+    print_management_page()
 elif menu == "Área Vendedor":
-    seller_page()
+    print_seller_page()
 elif menu == "Área Motorista":
-    driver_page()
+    print_driver_page()
 elif menu == "Área Entregas":
-    deliveries_page()
+    print_deliveries_page()

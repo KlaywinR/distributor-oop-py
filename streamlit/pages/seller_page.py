@@ -1,0 +1,98 @@
+import streamlit as st
+from datetime import date 
+from project.models.seller import Seller  
+
+  
+def seller_page():
+    st.title(" Área do Vendedor")
+    st.markdown("---")
+    st.write("Gerencie suas vendas, clientes atendidos, comissões e metas mensais.")
+
+
+    if "seller" not in st.session_state: 
+        
+        st.session_state.seller = Seller(
+            name="Carlos Souza",
+            shift="Manhã",
+            cpf="123.456.789-00",
+            salary=3500,
+            id_employee=101,
+            departament="Vendas",
+            status_employee="Ativo",
+            admission_date=date.today(),
+            contract_type="CLT",
+            position="Vendedor",
+            meta_monthly=50,
+            overtime=5,
+            hours_worked=160,
+            commision_percentual=10
+        )
+    seller = st.session_state.seller
+
+    # === Registrar Cliente Atendido ===
+    st.subheader(" Registrar Cliente Atendido")
+    cliente_nome = st.text_input("Nome do Cliente Atendido")
+    if st.button("Registrar Atendimento"):
+        seller.attend_costumer(cliente_nome)
+        st.success(f"Cliente {cliente_nome} registrado como atendido.")
+
+  
+    st.subheader(" Registrar Venda")
+    cliente_venda = st.text_input("Cliente da Venda")
+    produto_venda = st.text_input("Produto Vendido")
+    qtd_venda = st.number_input("Quantidade", min_value=1, step=1)
+    if st.button("Registrar Venda"):
+        seller.make_sale(cliente_venda, produto_venda, qtd_venda)
+        seller.add_pallets_sold(qtd_venda)
+        st.success(f"Venda registrada: {qtd_venda}x {produto_venda} para {cliente_venda}")
+
+
+    st.subheader(" Negociar Preço")
+    desconto = st.slider("Selecione o desconto (%)", 0.0, 0.15, 0.05)
+    if st.button("Negociar"):
+        st.info(seller.negotiate_price(desconto))
+
+
+    st.subheader(" Responder Reclamação")
+    cliente_reclamacao = st.text_input("Cliente com Reclamação")
+    if st.button("Responder Reclamação"):
+        st.success(seller.respond_to_complaint(cliente_reclamacao))
+
+  
+    st.subheader(" Verificar Crédito do Cliente")
+    cliente_credito = st.text_input("Nome do Cliente (simulado)")
+    if st.button("Verificar Crédito"):
+        class FakeClient:
+            def __init__(self, name, credit_score):
+                self.name = name
+                self.credit_score = credit_score
+        fake_client = FakeClient(cliente_credito, 650)
+        st.info(seller.see_costumer_credit(fake_client))
+
+    st.subheader(" Acompanhamento e Benefícios")
+    cliente_acomp = st.text_input("Cliente para acompanhamento")
+    if st.button("Fazer Acompanhamento"):
+        st.success(seller.follow_costumer(cliente_acomp))
+    if st.button("Aplicar Benefício"):
+        st.success(seller.apply_costumer_benefi(cliente_acomp))
+
+    st.subheader(" Solicitar Avaliação")
+    nota = st.number_input("Nota (1 a 5)", min_value=1, max_value=5, step=1)
+    if st.button("Registrar Avaliação"):
+        try:
+            seller.request_evaluation(nota)
+            st.success("Avaliação registrada com sucesso.")
+        except ValueError as e:
+            st.error(str(e))
+
+    st.subheader(" Sumário de Vendas")
+    if st.button("Exibir Sumário"):
+        resumo = seller.sumary_sales()
+        st.write(resumo)
+        st.bar_chart({
+            "Métrica": ["Clientes Atendidos", "Vendas Realizadas", "Paletes Vendidos", "Comissão"],
+            "Valor": [resumo["clientes_atendidos"], resumo["vendas_realizadas"], resumo["paletes_vendidos"], resumo["comissao"]]
+        })
+
+    st.markdown("---")
+    st.info(str(seller))

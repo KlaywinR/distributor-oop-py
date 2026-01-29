@@ -1,7 +1,8 @@
 import streamlit as st
-from ..streamlit.session_state import init_session_state
+from ..streamlit.state.session_state import init_session_state
 
-from ..streamlit.pages import start_page
+
+from ..streamlit.pages.start_page import start_page
 from ..streamlit.pages import stock_page
 from ..streamlit.pages import orders_page
 from ..streamlit.pages import management_page
@@ -9,6 +10,7 @@ from ..streamlit.pages import seller_page
 from ..streamlit.pages import deliveries_page
 from ..streamlit.pages import driver_page
 from ..streamlit.pages import client_page
+
 
 st.set_page_config(
     page_title="Sistema de Gestão Comercial e Logística",

@@ -8,6 +8,7 @@ def print_stock_page():
     st.markdown("---")
 
     stock = st.session_state.stock_obj
+    
 
     st.subheader("Cadastro de Pallets")
     with st.form("form_add_pallet"):

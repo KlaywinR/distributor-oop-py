@@ -5,7 +5,7 @@ def print_orders_page():
     st.markdown("---")
     st.write("Esta Área é dedicada ao registro, acompanhamento e análise de pedidos dos clientes.")
 
-    st.subheader("   Criar Novo Pedido")
+    st.subheader("Criar Novo Pedido")
     with st.form("form_pedido"):
         cliente_nome = st.text_input("Nome do Cliente")
         produto = st.selectbox("Produto", [p["nome"] for p in st.session_state.produtos]) if st.session_state.produtos else st.text_input("Produto")

@@ -20,9 +20,15 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         self.__address = address
         self.__phone = phone
         self.__client_type = client_type
-        self.__loyalty_points = loyalty_points
+        self.__loyalty_points = 0
         self.__purchase_history = []
         self._reviews = []
+        self.produtos = {
+            "Cimento": {"preco": 45.00, "promocao": 20.00},
+            "Arroz": {"preco": 5.50, "promocao": None},
+            "Feijão": {"preco": 7.80, "promocao": 7.50}
+        }
+        
         
     @property
     def name(self):
@@ -90,40 +96,27 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         - A cada R$10,00 gastos, 1 ponto é creditado,
         desde que a compra seja superior a 1 pallet.
         """
-        points = int(buy_value // 10)
-        self.__loyalty_points += points
+        if buy_value >0:
+            points = int(buy_value // 10)
+            self.__loyalty_points += points
+            return points
+        return 0
     
  
     def claim_points(self):
         """Resgate dos pontos de fidelidade acumulados."""
-        if self.__loyalty_points <= 0:
-            return "O Cliente não possui pontos para resgatar"
-        
+    
         points_redeemed = self.__loyalty_points
         self.__loyalty_points = 0
         
-        return f"O cliente arrecadou {points_redeemed} pontos com sucesso!"
+        return points_redeemed
     
     
-    def check_promotion(self, buy_value):
-        """
-        Verifica e aplica benefícios promocionais com base
-        nos pontos de fidelidade acumulados.
-        """
-        discount = 0
-        
-        if self.__loyalty_points >= 500:
-            discount = 0.20  
-        elif self.__loyalty_points >= 200:
-            discount = 0.10
-        
-        value_with_discount = buy_value - (buy_value * discount)
-        
-        return{
-            "Desconto Aplicado": f"{int(discount * 100)}%",
-            "Valor Final": value_with_discount
-        }
-        
+    def check_promotion(self, product_name):
+        produto = self.produtos.get(product_name)
+        if product_name and produto["promocao"] is not None:
+            return produto["promocao"]
+        return None
         
     def client_category(self):
         """

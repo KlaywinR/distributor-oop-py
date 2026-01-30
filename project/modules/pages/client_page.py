@@ -9,9 +9,7 @@ def print_client_page():
     st.markdown("___")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
     
-    """
-    Verifica se o cliente já está na sessão de estado, caso contrário, cria um novo cliente.
-    """
+
     if "client" not in st.session_state:
         st.session_state.client = Client(
             "Atacadão Queiroz", 123456, 12453, 10000,
@@ -21,35 +19,64 @@ def print_client_page():
     client = st.session_state.client
     
     with st.form("comprar_produto"):
-        produto = st.text_input("Nome do produto que deseja comprar")
+        produto = st.text_input("Digite o produto que deseja comprar")
         submitted = st.form_submit_button("Efetuar Compra")
+        
     if submitted:
         if produto in st.session_state.produtos:
             client.buy(produto)
             st.success(f"Compra de '{produto}' realizada com sucesso!")
         else:
-            st.error("Produto não foi encontrado")
+            st.success(f"Compra de '{produto}' realizada com sucesso!")
 
     with st.form("desconto_volume"):
         quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
         submitted = st.form_submit_button("Aplicar desconto")
-    if submitted and client.volume_discount(quantity_pallets):
-        st.success("Desconto aplicado com sucesso!")
+        
+    if submitted:
+        desconto = client.volume_discount(quantity_pallets)
+        if desconto > 0:
+            st.success(f"Desconto aplicado com sucesso! | Valor do Desconto: R$ {desconto}")
+        else:
+            st.warning("Mensagem do Sistema: Não existe desconto disponível para esta quantidade de pallets.")
 
 
     with st.form("pontos_fidelidade"):
         buy_value = st.number_input("Valor da compra", min_value=0.0)
-        submitted = st.form_submit_button("Adicionar pontos")
-    if submitted and client.add_loyalty_points(buy_value):
-        st.success("Pontos adicionados com sucesso!")
+        submitted = st.form_submit_button("Adicionar pontos ao valor da compra")
+        
+    if submitted:
+        pontos = client.add_loyalty_points(buy_value)
+        if pontos > 0:
+            st.success(f"Pontos adicionados com sucesso | Total: {pontos}")
+        else:
+            st.warning("Mensagem do Sistema: Nenhum ponto foi acumulado para o valor da sua compra.")
+        
+    if st.button("Desejo Reivindicar Pontos"):
+        pontos = client.claim_points()
+        if pontos > 0:
+            st.success(f"Pontos resgatados com sucesso | Total Resgatado: {pontos}")
+        else:
+            st.warning("Mensagem do Sistema: Você não possui pontos para resgate.")
 
-    if st.button("Desejo Reivindicar Pontos") and client.claim_points():
-        st.success("Pontos resgatados com sucesso!") 
-
+    st.subheader("Promoções")
+    
+    if st.session_state.produtos:
+        produto = st.selectbox(
+            "Selecione o produto para verificar promoção:", 
+            list(st.session_state.produtos.keys()) 
+        )
+        
     if st.button("Desejo Ver Promoções"):
-        valor = st.number_input("Valor da compra:")
-        if client.check_promotion(buy_value=valor):
-            st.success("Promoção verificada com sucesso!")
+            dados = st.session_state.produtos[produto]    
+            if dados["promocao"] is not None:
+                st.success (
+                    f"O produto {produto} se encontra em promoção. "
+                    )
+            else: 
+                st.warning(f"Mensagem do Sistema: O produto {produto} não possui promoção ativa no momento.")
+    else:
+        st.warning("Mensagem do Sistema: Não existe nenhum produto cadastrado no sistema.")
 
     with st.form("avaliacao_servico"):
         """

@@ -5,7 +5,7 @@ from project.models.client import Client
 
 
 def print_client_page():
-    st.subheader("Clients")
+    st.title("Clientes")
     st.markdown("___")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
     
@@ -26,8 +26,9 @@ def print_client_page():
         if produto in st.session_state.produtos:
             client.buy(produto)
             st.success(f"Compra de '{produto}' realizada com sucesso!")
+            
         else:
-            st.success(f"Compra de '{produto}' realizada com sucesso!")
+            st.success(f"O'{produto}'  foi encontrado no sistema!")
 
     with st.form("desconto_volume"):
         quantity_pallets = st.number_input("Quantidade de pallets", min_value=1)
@@ -60,23 +61,25 @@ def print_client_page():
             st.warning("Mensagem do Sistema: Você não possui pontos para resgate.")
 
     st.subheader("Promoções")
-    
+
     if st.session_state.produtos:
-        produto = st.selectbox(
+        option = st.selectbox(
             "Selecione o produto para verificar promoção:", 
             list(st.session_state.produtos.keys()) 
         )
         
-    if st.button("Desejo Ver Promoções"):
-            dados = st.session_state.produtos[produto]    
-            if dados["promocao"] is not None:
+        if st.button("Desejo Ver Promoções"):
+            produto_nome = st.session_state.produtos[produto_nome]    
+        
+            if produto.has_promotion():
                 st.success (
-                    f"O produto {produto} se encontra em promoção. "
-                    )
-            else: 
-                st.warning(f"Mensagem do Sistema: O produto {produto} não possui promoção ativa no momento.")
+                    f"O produto {produto} se encontra em promoção. ")
+                    
+        else: 
+            st.warning(f"Mensagem do Sistema: O produto {produto} não possui promoção ativa no momento.")
     else:
         st.warning("Mensagem do Sistema: Não existe nenhum produto cadastrado no sistema.")
+
 
     with st.form("avaliacao_servico"):
         """

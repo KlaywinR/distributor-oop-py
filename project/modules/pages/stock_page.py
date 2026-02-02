@@ -4,7 +4,7 @@ from project.models.product.product import Product
 
 
 def print_stock_page():
-    st.subheader("Gestão Total do Estoque")
+    st.title("Gestão do Estoque")
     st.markdown("---")
 
     stock = st.session_state.stock_obj
@@ -120,6 +120,7 @@ def print_stock_page():
     st.subheader("Listagem de Pallets e Valor Total")
     if st.button("Listar Todos os Pallets"):
         estoque_atualizado = []
+        
         for item in stock.list_pallets():
             estoque_atualizado.append({
                 "nome": item.product._name,
@@ -152,7 +153,7 @@ def print_stock_page():
 
     st.markdown("---")
 
-    st.subheader("   Informações Gerais do Estoque")
+    st.subheader("Informações Gerais do Estoque")
     if st.button("Desejo Mostrar Informações"):
         if st.session_state.estoque:
             valor_total = sum(p["preco"] * p["quantidade"] for p in st.session_state.estoque)

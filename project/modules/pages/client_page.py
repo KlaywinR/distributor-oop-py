@@ -5,8 +5,6 @@ from project.models.client import Client
 
 
 def print_client_page():
-    st.title("Clientes")
-    st.markdown("___")
     st.write("Bem-vindo(a) à distribuidora! Faça suas compras ou consulte promoções.")
     
 

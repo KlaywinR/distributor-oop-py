@@ -22,10 +22,13 @@ st.set_page_config(
     layout="wide"
 )
 
+
+
+
 init_session_state()
 
 menu = st.sidebar.radio(
-    "Navegação ",
+    "",
     [
         "Tela Inicial",
         "Área Cliente",

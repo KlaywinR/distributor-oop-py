@@ -3,8 +3,6 @@ from datetime import date
 from project.models.driver import Driver   
 
 def print_driver_page():
-    st.title("  Área do Motorista")
-    st.markdown("---")
     st.write("Gerencie entregas, ocorrências, disponibilidade e status do motorista.")
 
     if "driver" not in st.session_state:

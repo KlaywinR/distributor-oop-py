@@ -20,8 +20,6 @@ def classify_client(loyalty_points):
         return "Bronze"
   
 def print_seller_page():
-    st.title(" Área do Vendedor")
-    st.markdown("---")
     st.write("Gerencie suas vendas, clientes atendidos, comissões e metas mensais.")
 
 
@@ -90,7 +88,7 @@ def print_seller_page():
     if st.button("Fazer Acompanhamento"):
         st.success(seller.follow_costumer(cliente_acomp))
         
-    if st.button("Aplicar Benefício"):
+    if st.button("Pôr Benefício"):
         pontos_cliente  = seller.apply_costumer_benefi(cliente_acomp)
         categoria = classify_client(pontos_cliente)
         st.success(f"Beneficio aplicado ao cliente {cliente_acomp} | Categoria Atual: **{categoria}**")
@@ -108,10 +106,10 @@ def print_seller_page():
     st.subheader("Sumário de Vendas")
     
     resumo = {
-            "clientes_atendidos": 8,
-            "vendas_realizadas": 90,
-            "paletes_vendidos": 123,
-            "comissao": 56.8
+            "clientes_atendidos": 10,
+            "vendas_realizadas": 78,
+            "paletes_vendidos": 456,
+            "comissao": 100
         }
     
     if st.button("Exibir Sumário"):

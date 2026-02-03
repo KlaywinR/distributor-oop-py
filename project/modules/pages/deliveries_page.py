@@ -4,8 +4,6 @@ from project.models.delivery import Delivery
 
 
 def print_deliveries_page():
-    st.title(" Área de Entregas")
-    st.markdown("---")
     st.write("Gerencie entregas, atribua motoristas, calcule custos e acompanhe o status.")
 
     if "delivery" not in st.session_state:

@@ -32,6 +32,8 @@ def init_session_state():
         st.session_state.dashboard = None
         
 
+        
+
     if "funcionarios" not in st.session_state:
         st.session_state.funcionarios = [
         {"nome": "Carlos", "vendas": 12, "entregas": 5, "promovido": True},

@@ -4,9 +4,6 @@ from project.models.product.product import Product
 
 
 def print_stock_page():
-    st.title("Gestão do Estoque")
-    st.markdown("---")
-
     stock = st.session_state.stock_obj
     
 

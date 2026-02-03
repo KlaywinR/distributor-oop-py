@@ -22,3 +22,22 @@ def init_session_state():
     if "produtos" not in st.session_state:
         st.session_state.produtos = ["Arroz", "Feijão", "Cimento"]
         
+    if "nota_emitida" not in st.session_state:
+        st.session_state.nota_emitida = None
+        
+    if "notas_fiscais" not in st.session_state:
+        st.session_state.notas_fiscais = []
+        
+    if "dashboard" not in st.session_state:
+        st.session_state.dashboard = None
+        
+
+    if "funcionarios" not in st.session_state:
+        st.session_state.funcionarios = [
+        {"nome": "Carlos", "vendas": 12, "entregas": 5, "promovido": True},
+        {"nome": "Ana", "vendas": 8, "entregas": 22, "promovido": False},
+        {"nome": "João", "vendas": 15, "entregas": 30, "promovido": True}
+    ]
+
+        
+         

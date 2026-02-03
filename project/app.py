@@ -4,7 +4,6 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-#from session_state import init_session_state
 from modules.pages.start_page import print_start_page
 from modules.pages.stock_page import print_stock_page
 from modules.pages.orders_page import print_orders_page
@@ -18,7 +17,6 @@ from modules.pages.client_page import print_client_page
 from project.session_state import init_session_state
 
 
-
 st.set_page_config(
     page_title="Sistema de Gestão Comercial e Logística",
     layout="wide"
@@ -27,7 +25,7 @@ st.set_page_config(
 init_session_state()
 
 menu = st.sidebar.radio(
-    "Menu",
+    "Navegação ",
     [
         "Tela Inicial",
         "Área Cliente",
@@ -37,8 +35,13 @@ menu = st.sidebar.radio(
         "Área Vendedor",
         "Área Motorista",
         "Área Entregas"
-    ]
+    ],
+    label_visibility="collapsed"
+    
 )
+
+st.divider()
+
 
 if menu == "Tela Inicial":
     print_start_page()

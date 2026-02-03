@@ -2,6 +2,9 @@ import streamlit as st
 from modules.pages import client_page
 from modules.pages import stock_page
 from modules.pages import orders_page
+from modules.pages import client_page
+
+ 
 import pandas as pd
 import random 
 

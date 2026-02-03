@@ -22,7 +22,7 @@ def print_deliveries_page():
         )
     delivery = st.session_state.delivery
 
-    st.subheader(" Atribuir Motorista")
+    st.subheader("Atribuir Motorista")
     motorista_nome = st.text_input("Nome do Motorista")
     if st.button("Atribuir Motorista"):
         try:
@@ -39,7 +39,7 @@ def print_deliveries_page():
         except PermissionError as e:
             st.error(str(e))
 
-    st.subheader(" Finalizar Entrega")
+    st.subheader("Finalizar Entrega")
     if st.button("Finalizar Entrega"):
         try:
             delivery.finish_delivery()
@@ -47,7 +47,7 @@ def print_deliveries_page():
         except PermissionError as e:
             st.error(str(e))
 
-    st.subheader(" Cancelar Entrega")
+    st.subheader("Cancelar Entrega")
     motivo_cancelamento = st.text_input("Motivo do Cancelamento")
     if st.button("Cancelar Entrega"):
         try:
@@ -69,4 +69,4 @@ def print_deliveries_page():
     if st.button("Exibir Timeline"):
         timeline = delivery.get_timeline()
         for evento in timeline:
-            st.write(f"- {evento['event']} em {evento['date'].strftime('%d/%m/%Y %H:%M:%S')}")
+            st.write(f"- {evento['event']}, em {evento['date'].strftime('%d/%m/%Y %H:%M:%S')}")

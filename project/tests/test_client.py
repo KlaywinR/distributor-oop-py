@@ -1,5 +1,5 @@
 from datetime import datetime
-from models.client import Client
+from project.models.client import Client
 
 class Product:
     def __init__(self, name):

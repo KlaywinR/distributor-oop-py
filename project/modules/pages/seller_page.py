@@ -53,7 +53,7 @@ def print_seller_page():
         st.success(f"Cliente {cliente_nome} registrado como atendido.")
 
   
-    st.subheader(" Registrar Venda")
+    st.subheader("Registrar Venda")
     cliente_venda = st.text_input("Cliente da Venda")
     produto_venda = st.text_input("Produto Vendido")
     qtd_venda = st.number_input("Quantidade", min_value=1, step=1)
@@ -63,19 +63,19 @@ def print_seller_page():
         st.success(f"Venda registrada: {qtd_venda}x {produto_venda} para {cliente_venda}")
 
 
-    st.subheader(" Negociar Preço")
+    st.subheader("Negociar Preço")
     desconto = st.slider("Selecione o desconto (%)", 0.0, 0.15, 0.05)
     if st.button("Negociar"):
         st.info(seller.negotiate_price(desconto))
 
 
-    st.subheader(" Responder Reclamação")
+    st.subheader("Responder Reclamação")
     cliente_reclamacao = st.text_input("Cliente com Reclamação")
     if st.button("Responder Reclamação"):
         st.success(seller.respond_to_complaint(cliente_reclamacao))
 
   
-    st.subheader(" Verificar Crédito do Cliente")
+    st.subheader("Verificar Crédito do Cliente")
     cliente_credito = st.text_input("Nome do Cliente (simulado)")
     if st.button("Verificar Crédito"):
         class FakeClient:
@@ -103,11 +103,19 @@ def print_seller_page():
             st.success("Avaliação registrada com sucesso.")
         except ValueError as e:
             st.error(str(e))
+            
 
     st.subheader("Sumário de Vendas")
+    
+    resumo = {
+            "clientes_atendidos": 8,
+            "vendas_realizadas": 90,
+            "paletes_vendidos": 123,
+            "comissao": 56.8
+        }
+    
     if st.button("Exibir Sumário"):
         resumo = seller.sumary_sales()
-        
     
     df_resumo = pd.DataFrame({
         "Métrica": ["Clientes Atendidos", "Vendas Realizadas", "Paletes Vendidos", "Comissão (R$)"],
@@ -115,20 +123,4 @@ def print_seller_page():
     })
     
   
-    st.markdown("### Tabela Resumo")
-    st.table(df_resumo.style.format({"Valor": "{:,.0f}"}))
-    
-   
-    st.markdown("### Gráfico de Desempenho")
-    st.bar_chart(df_resumo.set_index("Métrica"))
-    
-   
-    st.markdown("### Indicadores em Destaque")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Clientes Atendidos", resumo["clientes_atendidos"])
-    col2.metric("Vendas Realizadas", resumo["vendas_realizadas"])
-    col3.metric("Paletes Vendidos", resumo["paletes_vendidos"])
-    col4.metric("Comissão (R$)", f"R$ {resumo['comissao']:.2f}")
-
-st.markdown("---")
-
+    st.dataframe(df_resumo)

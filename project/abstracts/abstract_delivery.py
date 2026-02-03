@@ -12,7 +12,7 @@ class AbstractDelivery(DeliveryInterface, ABC):
         """"
         Entrega com identificador padrão e dados.
         """
-        self._id_delivery = id_delivery
+        self.id_delivery = id_delivery
         self._created_at = datetime.now()
         self._started_at = None
         self._finished_at = None

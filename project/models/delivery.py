@@ -24,16 +24,16 @@ class Delivery(DelayControlMixin, AbstractDelivery):
     
     def __init__(self, id_delivery, estimated_hours, distance_km,id_vehicle,type_vehicle,status_vehicle,capacity_vehicle,express=False):
         super().__init__(id_delivery)
-        self._estimated_time = datetime.now() + timedelta(hours= estimated_hours)
-        self._receiver_name = None
-        self._proof = None
-        self._driver = None
+        self.estimated_time = datetime.now() + timedelta(hours= estimated_hours)
+        self.driver = None
+        self.express = express
+        self.id_delivery = id_delivery
         self._distance_km = distance_km
         self._express = express
-        self._type_vehicle = type_vehicle
-        self._id_vehicle = id_vehicle
-        self._status_vehicle = status_vehicle
-        self._capacity_vehicle = capacity_vehicle
+        self.type_vehicle = type_vehicle
+        self.id_vehicle = id_vehicle
+        self.status_vehicle = status_vehicle
+        self.capacity_vehicle = capacity_vehicle
         self._timeline = []
         self._register_event("Entrega Criada")
     
@@ -41,23 +41,27 @@ class Delivery(DelayControlMixin, AbstractDelivery):
     @property
     def id_veiculo(self): 
         """Retorna o identificador do veículo."""
-        return self.__id_veiculo   
+        return self.id_vehicle  
             
     @property
     def type(self): 
         """Retorna o tipo do veículo utilizado na entrega."""
-        return self.__type_vehicle
+        return self.type_vehicle
     
          
     @property
     def capacity(self): 
         """Retorna a capacidade do veículo."""
-        return self.__id_vehicle   
+        return self.id_vehicle   
             
     @property
     def status_vehicle(self): 
         """Retorna o status atual do veículo."""
-        return self.__status_vehicle
+        return self._status_vehicle
+    
+    @status_vehicle.setter
+    def status_vehicle(self, value):
+        self._status_vehicle = value
     
     def assign_driver(self, driver):
         """
@@ -66,8 +70,8 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         """
         if self._status != self.STATUS_PENDING:
             raise ValueError("O motorista só pode ser solicitado quando existir entregas pendentes..")
-        self._driver = driver 
-        self._status = self.STATUS_ASSIGNED
+        self.driver = driver 
+        self.status = self.STATUS_ASSIGNED
         self._register_event("Motorista Atribuido")
         
     def calculate_cost(self):
@@ -88,15 +92,15 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         
     def can_start(self) -> bool:
         """Verifica se a entrega pode ser iniciada."""
-        return self._status == self.STATUS_ASSIGNED and self._driver is not None
+        return self.status == self.STATUS_ASSIGNED and self.driver is not None
 
     def can_finish(self) -> bool:
         """Verifica se a entrega pode ser finalizada."""
-        return self._status == self.STATUS_IN_TRANSIT
+        return self.status == self.STATUS_IN_TRANSIT
     
     def can_cancel(self) -> bool:
         """Verifica se a entrega pode ser cancelada"""
-        return self._status not in (self.STATUS_DELIVERED, self.STATUS_CANCELED)
+        return self.status not in (self.STATUS_DELIVERED, self.STATUS_CANCELED)
     
     def is_active(self) -> bool:
         """Verifica se a entrega está ativa no sistema."""
@@ -146,7 +150,7 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         self.notify_costumer(f"Entrega cancelada: {reason}")
         
     def notify_costumer(self, message: str):
-        print(f"[CLIENTE] Entrega {self._id_delivey}: {message}")
+        print(f"[CLIENTE] Entrega {self.id_delivery}: {message}")
         
     def __len__(self):
         """Retorna a quantidade de ocorrencias registradas"""
@@ -154,4 +158,7 @@ class Delivery(DelayControlMixin, AbstractDelivery):
     
     def __str__(self): 
         """Representação textual da entrega"""
-        return (f"Veículo {self.__id_veiculo},- {self.__tipo} " f"({self.__placa}), Capacidade: {self.__capacidade}kg, " f"Status: {self.__status.value}, " f"Motorista: {self.__motorista.nome if self.__motorista else 'Nenhum'}")
+        return (
+            f"Veículo {self.id_vehicle},{self.type_vehicle}"
+            f"Capacidade: {self.capacity_vehicle}kg, Status: {self.status_vehicle}, "
+            f"Motorista: {self.driver if self.driver else 'Nenhum'}")

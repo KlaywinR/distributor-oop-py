@@ -10,13 +10,12 @@ def print_deliveries_page():
 
     if "delivery" not in st.session_state:
       
-
         st.session_state.delivery = Delivery(
             id_delivery=1,
             estimated_hours=5,
             distance_km=120,
-            id_vehicle="ABC-1234",
-            type_vehicle="Caminhão",
+            id_vehicle="XUXU-4569",
+            type_vehicle="CARRETA",
             status_vehicle="Disponível",
             capacity_vehicle=2000,
             express=True
@@ -32,7 +31,7 @@ def print_deliveries_page():
         except ValueError as e:
             st.error(str(e))
 
-    st.subheader(" Iniciar Entrega")
+    st.subheader("Iniciar Entrega")
     if st.button("Iniciar Entrega"):
         try:
             delivery.start_delivery()

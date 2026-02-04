@@ -5,24 +5,28 @@ def print_management_page():
     st.title("Gerenciamento Geral")
     st.write("Área dedicada ao gerenciamento de compras, descontos, funcionários e relatórios estratégicos.")
 
-    st.session_state.setdefault(
-        "funcionarios",
-        [
+   
+    if "funcionarios" not in st.session_state:
+        st.session_state.funcionarios = [
             {"nome": "PEDRO LOBO NUNES", "promovido": False},
             {"nome": "DEMETRIOS COUTINHO", "promovido": True},
             {"nome": "CIRO NUNES", "promovido": False},
             {"nome": "ALUISIO SUPER SALÁRIO", "promovido": False},
-        ],
-    )
-    st.session_state.setdefault("msg", "")
-    st.session_state.setdefault(
-        "clientes",
-        [{"nome": "Cliente Teste", "compra_total": 6200, "desconto": 20, "ativo": True},
-         {"nome": "Cliente Inativo", "compra_total": 1000, "desconto": 20, "inativo": False}],
-        
-    )
-    st.session_state.setdefault("mostrar_relatorio", False)
+        ]
 
+    if "clientes" not in st.session_state:
+        st.session_state.clientes = [
+            {"nome": "Cliente Teste", "compra_total": 6200, "desconto": 20, "ativo": True, "compra_aprovada": False},
+            {"nome": "Cliente Inativo", "compra_total": 1000, "desconto": 5, "ativo": False, "compra_aprovada": False},
+        ]
+
+    if "mostrar_relatorio" not in st.session_state:
+        st.session_state.mostrar_relatorio = False
+
+    if "msg" not in st.session_state:
+        st.session_state.msg = ""
+
+   
     st.subheader("Minhas Ações")
     col1, col2, col3 = st.columns(3)
 
@@ -30,66 +34,75 @@ def print_management_page():
         if st.button("Aprovar Compras +R$ 5.000"):
             aprovadas = 0
             for c in st.session_state.clientes:
-                if c.get("compra_total", 0) >= 5000 and not c.get("compra_aprovada", False):
+                if c["compra_total"] >= 5000 and not c["compra_aprovada"]:
                     c["compra_aprovada"] = True
                     aprovadas += 1
+
             st.session_state.msg = (
-                f"{aprovadas} compra(s) acima de R$ 5.000 foram aprovadas."
-                if aprovadas else "Mensagem do Sistema: Nenhuma compra acima de R$ 5.000 encontrada."
+                f"{aprovadas} compra(s) acima de R$ 5.000 aprovadas."
+                if aprovadas else "Nenhuma compra elegível encontrada."
             )
+            st.rerun()
 
     with col2:
         if st.button("Aprovar Descontos >= 15%"):
-            descontos = [c for c in st.session_state.clientes if c.get("desconto", 0) >= 15]
+            aprovados = 0
+            for c in st.session_state.clientes:
+                if c["desconto"] >= 15:
+                    c["desconto_aprovado"] = True
+                    aprovados += 1
+
             st.session_state.msg = (
-                f"{len(descontos)} desconto(s) aprovados."
-                if descontos else "Mensagem do Sistema: Nenhum desconto elegível encontrado."
+                f"{aprovados} desconto(s) aprovados."
+                if aprovados else "Nenhum desconto elegível."
             )
+            st.rerun()
 
     with col3:
-        if st.button("Exibir Relatório de Faturamento"):
-            st.session_state.mostrar_relatorio = True
+        if st.button("Mostrar / Ocultar Relatório"):
+            st.session_state.mostrar_relatorio = not st.session_state.mostrar_relatorio
+            st.rerun()
 
+ 
     if st.session_state.mostrar_relatorio:
-        total_faturamento = sum(c.get("compra_total", 0) for c in st.session_state.clientes)
-        clientes_ativos = [c for c in st.session_state.clientes if c.get("ativo", True)]
-        inativos = len(st.session_state.clientes) - len(clientes_ativos)
+        st.subheader("Relatório de Faturamento")
 
-        st.markdown("Resumo Geral")
+        clientes_ativos = [c for c in st.session_state.clientes if c["ativo"]]
+        clientes_inativos = [c for c in st.session_state.clientes if not c["ativo"]]
+
+        total_faturamento = sum(c["compra_total"] for c in clientes_ativos)
+
         colA, colB, colC = st.columns(3)
-        colA.metric("Faturamento Total", f"R${total_faturamento:.2f}")
+        colA.metric("Faturamento Ativo", f"R$ {total_faturamento:,.2f}")
         colB.metric("Clientes Ativos", len(clientes_ativos))
-        colC.metric("Clientes Inativos", inativos)
+        colC.metric("Clientes Inativos", len(clientes_inativos))
 
         df = pd.DataFrame({
             "Status": ["Ativos", "Inativos"],
-            "Quantidade": [len(clientes_ativos), inativos]
+            "Quantidade": [len(clientes_ativos), len(clientes_inativos)]
         }).set_index("Status")
 
         st.bar_chart(df)
 
     st.markdown("---")
 
-  
+    
     st.subheader("Gestão de Employees")
-    st.markdown("---")
-    for i, f in enumerate(st.session_state.funcionarios):
-        col_nome, col_status, col_btn = st.columns([2, 2, 1])
-        with col_nome:
-            st.write(f"**{f['nome']}**")
-        with col_status:
-            status = "Foi Promovido" if f["promovido"] else "Não foi condecorado"
-            st.write(status)
-        with col_btn:
-            texto = "Promover Employee" if not f["promovido"] else "Não promover employee"
-            if st.button(texto, key=f"func_{i}"):
-                f["promovido"] = not f["promovido"]
-                st.session_state.msg = (
-                    f"{f['nome']} foi promovido na empresa"
-                    if f["promovido"] else f"{f['nome']} foi REBAIXADO."
-                )
 
-    st.markdown("---")
+    for i in range(len(st.session_state.funcionarios)):
+        f = st.session_state.funcionarios[i]
+
+        col1, col2, col3 = st.columns([3, 2, 2])
+
+        col1.write(f"**{f['nome']}**")
+        col2.write("Promovido" if f["promovido"] else "Não foi promovido")
+
+        if col3.button("Promover Employee", key=f"func_{i}"):
+            st.session_state.funcionarios[i]["promovido"] = not f["promovido"]
+            st.session_state.msg = f"{f['nome']} teve o status alterado."
+            st.rerun()
+
+
     if st.session_state.msg:
         st.success(st.session_state.msg)
 

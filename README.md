@@ -7,6 +7,10 @@ As tecnologias usadas são:
   - Streamlit: Biblioteca Python para a criação da interface gráfica
   - Pandas: Biblioteca Python para análise de dados dos sistema
 
-# Dsenvolvedores
-------
-@KlaywinR
+# Sobre o Projeto
+-----
+O sistema busca centralizar e automatizar processos logísticos e comerciais, garantindo eficiência na gestão de estoque e vendas por pallets. Também promove a fidelização de clientes atacadistas, assegura o controle de entregas e contribui para a redução de custos operacionais, aumentando a competitividade das distribuidoras.
+
+
+
+

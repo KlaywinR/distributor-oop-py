@@ -6,7 +6,13 @@ from project.models.product.product import Product
 
 
 class Stock(BaseStock, MovementMixin):
+    """
+        - BaseStock para controle estrutural do estoque
+        - MovementMixin para registro de movimentações (entradas e saídas).
+    Ela gerencia produtos armazenados em pallets, status do estoque e
+    histórico de movimentações"""
     def __init__(self, total_capacity: int, responsible: str, name: str):
+        """Inicialização do estoque"""
         super().__init__(total_capacity)
         self._responsible = responsible
         self._movement_history = []
@@ -15,13 +21,21 @@ class Stock(BaseStock, MovementMixin):
         
     @property
     def responsible(self):
+        """retorna o responsável"""
         return self._responsible
-    
+
     @responsible.setter
     def responsible(self, name: str):
+        """atualiza o responsável"""
         self._responsible = name 
         
     def add_pallet(self, product: Product, pallets: int):
+        """
+        - Verifica se o produto está ativo.
+        - Verifica se o produto não está vencido.
+        - Atualiza a quantidade caso o produto já exista no estoque.
+        - Registra a movimentação de entrada.
+        """
         if not product.is_active():
             raise ValueError("Informação do Sistema: O produto está inativo")
         if product.is_expired():
@@ -41,6 +55,11 @@ class Stock(BaseStock, MovementMixin):
         self._update_status()
           
     def del_pallet(self,product: Product, pallets: int):
+        """      
+        - Verifica se há quantidade suficiente.
+        - Remove o produto da lista caso zere os pallets.
+        - Registra a movimentação de saída.
+        """
         for item in self._pallet_list:
             if item.product.barcode == product.barcode:
                 if pallets > item.pallets:
@@ -56,24 +75,29 @@ class Stock(BaseStock, MovementMixin):
                 return
             raise ValueError("O produto não foi encontrado no estoque")
     
-    #pallet listaddo no atacado
     def list_pallets(self) -> list[StockItem]:
+        """Retorna uma cópia da lista de pallets armazenados no estoque."""
         return self._pallet_list.copy()
     
     def search_product_id(self, product_id):
+        """Procura  o produto pelo id"""
         return next(
             (item for item in self._pallet_list if item.product.barcode == product_id),
             None
         )
     
     def total_stock_value(self):
+        """Retorna o valor total do estoque"""
         return sum(item.total_value() for item in self._pallet_list)
         
-    #built ins
+    #built in
     def view_status(self):
+        """Vê o status do estoque"""
         return self._status
     
+    
     def _update_status(self):
+        """Atualiza  o estoque com base na ocupação atual."""
         total_pallets = sum(item.pallets for item in self._pallet_list)
         if total_pallets == 0:
             self._status = "VAZIO"
@@ -83,6 +107,7 @@ class Stock(BaseStock, MovementMixin):
             self._status = "CHEIO"
               
     def __str__(self):
+        """Representação atual do estoque"""
         return (
             f"-- Informações Gerais do Estoque --\n"
             f"Estoque: {self._name}\n"

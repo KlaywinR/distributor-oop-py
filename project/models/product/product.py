@@ -8,7 +8,7 @@ from project.abstracts.promocional import Promocional
 class Product(Promocional):
     """
     Representa um produto dentro do sistema de gestão comercial e logística.
-        -H: Promocional: fornece regras relacionadas a promoções de preço.
+        - Promocional: fornece regras relacionadas a promoções de preço.
     """
     def __init__(self, name, category,unit_measure,brand,
                  wheight_per_unit,pallets_quantity,barcode,

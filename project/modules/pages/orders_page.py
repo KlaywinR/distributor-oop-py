@@ -28,7 +28,7 @@ def print_orders_page():
 
     st.markdown("---")
 
-    st.subheader("   Lista de Pedidos")
+    st.subheader("Lista de Pedidos")
     if st.session_state.reservas:
         for i, pedido in enumerate(st.session_state.reservas, start=1):
             st.info(
@@ -64,11 +64,11 @@ def print_orders_page():
             cancelados = sum(1 for p in st.session_state.reservas if p["status"] == "Cancelado")
             valor_total = sum(p["valor_total"] for p in st.session_state.reservas if p["valor_total"])
 
-            st.info(f"   Total de pedidos: {total_pedidos}")
-            st.info(f"   Concluídos: {concluidos}")
-            st.info(f"   Pendentes: {pendentes}")
-            st.info(f"   Cancelados: {cancelados}")
-            st.info(f"   Valor total em pedidos: R${valor_total:.2f}")
+            st.info(f"Total de pedidos: {total_pedidos}")
+            st.info(f"Concluídos: {concluidos}")
+            st.info(f"Pendentes: {pendentes}")
+            st.info(f"Cancelados: {cancelados}")
+            st.info(f"Valor total em pedidos: R${valor_total:.2f}")
 
             dados_relatorio = {
                 "Status": ["Concluídos", "Pendentes", "Cancelados"],

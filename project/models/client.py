@@ -29,7 +29,6 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
             "Feijão": {"preco": 7.80, "promocao": 7.50}
         }
         
-        
     @property
     def name(self):
         return self.__name
@@ -62,7 +61,7 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
         final_value = gross_value - discount_value
 
         self.__purchase_history.append({
-                "Product": product.name,
+                "Product": product,
                 "Quantity": quantity_pallets,
                 "Final Value": final_value,
                 "Date": datetime.now()
@@ -105,7 +104,6 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
  
     def claim_points(self):
         """Resgate dos pontos de fidelidade acumulados."""
-    
         points_redeemed = self.__loyalty_points
         self.__loyalty_points = 0
         

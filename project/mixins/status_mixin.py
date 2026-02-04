@@ -4,7 +4,7 @@ class StatusMixin:
     """
     def block(self):
         """
-        Blloqueia o pallet -- muda o status do mesmo.
+        Bloqueia o pallet -- muda o status do mesmo.
         """
         self._status = "Bloqueado"
         

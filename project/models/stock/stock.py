@@ -22,7 +22,6 @@ class Stock(BaseStock, MovementMixin):
         self._responsible = name 
         
     def add_pallet(self, product: Product, pallets: int):
-        
         if not product.is_active():
             raise ValueError("Informação do Sistema: O produto está inativo")
         if product.is_expired():

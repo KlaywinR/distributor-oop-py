@@ -5,6 +5,7 @@ import pandas as pd
 
 
 def classify_client(loyalty_points):
+    
     try:
         loyalty_points = int(loyalty_points)
     except ValueError:
@@ -26,7 +27,7 @@ def print_seller_page():
     if "seller" not in st.session_state: 
         
         st.session_state.seller = Seller(
-            name="Carlos Souza",
+            name="José de Almeida Fonseca",
             shift="Manhã",
             cpf="123.456.789-00",
             salary=3500,
@@ -41,10 +42,33 @@ def print_seller_page():
             hours_worked=160,
             commision_percentual=10
         )
+        
+    beneficios_categoria = {
+    "Diamante": [
+        "Possui  20% de desconto exclusivo",
+        "Atendimento prioritário",
+        "Crédito Estendido",
+        "Negociação personalizada com a distribuidora"
+       
+    ],
+    "Ouro": [
+        "10% de desconto em compras",
+        "Atendimento prioritário",
+        "Crédito Facilitado pela distribuidora"
+    ],
+    "Prata": [
+        "Programa de fidelidade padrão",
+        "Frete grátis"
+    ],
+    "Bronze": [
+        "Condições comerciais básicas"
+    ]
+}
+    
+    
     seller = st.session_state.seller
 
-
-    st.subheader(" Registrar Cliente Atendido")
+    st.subheader("Registrar Cliente Atendido")
     cliente_nome = st.text_input("Nome do Cliente Atendido")
     if st.button("Registrar Atendimento"):
         seller.attend_costumer(cliente_nome)
@@ -74,7 +98,7 @@ def print_seller_page():
 
   
     st.subheader("Verificar Crédito do Cliente")
-    cliente_credito = st.text_input("Nome do Cliente (simulado)")
+    cliente_credito = st.text_input("Nome do Cliente")
     if st.button("Verificar Crédito"):
         class FakeClient:
             def __init__(self, name, credit_score):
@@ -84,14 +108,22 @@ def print_seller_page():
         st.info(seller.see_costumer_credit(fake_client))
 
     st.subheader("Acompanhamento e Benefícios")
-    cliente_acomp = st.text_input("Cliente para acompanhamento")
+    cliente_acomp = st.text_input("Acompanhar Cliente")
     if st.button("Fazer Acompanhamento"):
         st.success(seller.follow_costumer(cliente_acomp))
         
-    if st.button("Pôr Benefício"):
+    if st.button("Pôr Benefício Para o Cliente"):
         pontos_cliente  = seller.apply_costumer_benefi(cliente_acomp)
         categoria = classify_client(pontos_cliente)
-        st.success(f"Beneficio aplicado ao cliente {cliente_acomp} | Categoria Atual: **{categoria}**")
+        
+        beneficios = beneficios_categoria.get(categoria, [])
+        
+        st.success(f"Benefício aplicado ao cliente {cliente_acomp}")
+        st.info(f"Categoria Atual: {categoria}")
+
+        st.markdown("Benefícios aplicados ao cliente:")
+        for b in beneficios:
+            st.info(f"-{b}")
 
     st.subheader("Solicitar Avaliação")
     nota = st.number_input("Nota (1 a 5)", min_value=1, max_value=5, step=1)
@@ -102,7 +134,6 @@ def print_seller_page():
         except ValueError as e:
             st.error(str(e))
             
-
     st.subheader("Sumário de Vendas")
     
     resumo = {

@@ -1,4 +1,3 @@
-
 class AuthorizationMixin:
     """
     Usado para realizar autorizações do sistema.

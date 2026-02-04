@@ -17,20 +17,19 @@ def print_driver_page():
         )
     driver = st.session_state.driver
 
-
     st.subheader("Validade da CNH")
     if st.button("Verificar CNH"):
         if driver.cnh_is_valid():
-            st.success("CNH válida ")
+            st.success("Mensagem do Sistema: CNH válida ")
         else:
-            st.error("CNH vencida")
+            st.error("Mensagem do Sistema: CNH vencida")
 
     st.subheader("Disponibilidade para Operar")
     if st.button("Verificar Disponibilidade"):
         if driver.can_operate():
-            st.success("Motorista pode operar ")
+            st.success("Mensagem do Sistema: Motorista pode operar ")
         else:
-            st.error("Motorista não pode operar")
+            st.error("Mensagem do Sistema: Motorista não pode operar")
 
     st.subheader("Atribuir Entrega")
     entrega_nome = st.text_input("Nome da Entrega")
@@ -57,7 +56,7 @@ def print_driver_page():
         if len(driver) > 0:
             st.info(f"Total de entregas atribuídas: {len(driver)}")
             st.write(driver._Driver__routes_history) 
-            st.warning("Nenhuma entrega registrada.")
+            st.warning("Mensagem do Sistema: Nenhuma entrega registrada.")
 
     st.subheader("Status do Motorista")
     if st.button("Exibir Status"):

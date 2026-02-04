@@ -14,7 +14,7 @@ def print_stock_page():
         preco_unitario = st.number_input("Preço Unitário - R$", min_value=0.0, step=0.01) 
         marca = st.text_input("Marca do Produto")
         categoria = st.text_input("Categoria do Produto")
-        fornecedor = st.text_input("Nome do Fornecedor")
+        fornecedor = st.text_input("Origem ")
         validade = st.date_input("Data de Validade")
         is_active = st.checkbox("O Produto está ativo?", value=True) 
         submitted = st.form_submit_button("Colocar no Estoque")
@@ -134,17 +134,17 @@ def print_stock_page():
             valor_total = sum(p["preco"] * p["quantidade"] for p in estoque_atualizado)
             for p in estoque_atualizado:
                 st.info(
-                    f"**Produto:** {p['nome']} | "
-                    f"**Quantidade:** {p['quantidade']} | "
-                    f"**Preço Unitário:** R${p['preco']:.2f} | "
-                    f"**Marca:** {p.get('marca', 'Não informado')} | "
-                    f"**Categoria:** {p.get('categoria', 'Não informado')} | "
-                    f"**Fornecedor:** {p.get('fornecedor', 'Não informado')} | "
-                    f"**Validade:** {p.get('validade', 'Não informado')} | "
-                    f"**Status:** {p.get('status', 'Ativo')}"
+                    f"Produto: {p['nome']} | "
+                    f"Quantidade: {p['quantidade']} | "
+                    f"Preço Unitário: R${p['preco']:.2f} | "
+                    f"Marca: {p.get('marca', 'Não informado')} | "
+                    f"Categoria: {p.get('categoria', 'Não informado')} | "
+                    f"Origem: {p.get('fornecedor', 'Não informado')} | "
+                    f"Validade: {p.get('validade', 'Não informado')} | "
+                    f"Status: {p.get('status', 'Ativo')}"
                 )
-            st.success(f"    Valor total do estoque: R${valor_total:.2f}")
-            st.info(f"   Total de pallets: {sum(p['quantidade'] for p in estoque_atualizado)}")
+            st.success(f"Valor total do estoque: R${valor_total:.2f}")
+            st.info(f"Total de pallets: {sum(p['quantidade'] for p in estoque_atualizado)}")
         else:
             st.warning("Estoque vazio.")
 
@@ -157,9 +157,9 @@ def print_stock_page():
             quantidade_total = sum(p["quantidade"] for p in st.session_state.estoque)
             capacidade_total = st.session_state.capacidade_total
 
-            st.write(f"**Responsável pelo Estoque:** {st.session_state.responsavel_estoque}")
-            st.write(f"**Capacidade Máxima:** {capacidade_total} pallets")
-            st.write(f"**Ocupação Atual:** {quantidade_total}/{capacidade_total} pallets")
+            st.write(f"Responsável pelo Estoque: {st.session_state.responsavel_estoque}")
+            st.write(f"Capacidade Máxima: {capacidade_total} pallets")
+            st.write(f"Ocupação Atual: {quantidade_total}/{capacidade_total} pallets")
 
             ocupacao = quantidade_total / capacidade_total
             st.progress(min(ocupacao, 1.0))

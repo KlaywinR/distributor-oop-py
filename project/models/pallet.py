@@ -31,7 +31,7 @@ class Pallet:
         """
         Retorna a localização do pallet no estoque.
         """
-        return self._location_in_stock 
+        return self._location_in_stock  
     
     @location_in_stock.setter
     def location_in_stock(self, value: str) -> None:
@@ -49,7 +49,6 @@ class Pallet:
     def status(self, value: str) -> None:
         """
         Define o status do pallet.
-
         Status permitidos:
         - Ativo
         - Bloqueado

@@ -1,4 +1,3 @@
-
 class AvailabilityMixin:
     """
      Mixin responsável por verificar a disponibilidade de operação.

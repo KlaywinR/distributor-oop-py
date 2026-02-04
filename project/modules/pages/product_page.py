@@ -1,6 +1,5 @@
 import streamlit as st
 
-
 def product_page():
     st.title("Gestão de Produtos")
     st.markdown("---")

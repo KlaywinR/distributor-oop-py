@@ -5,7 +5,6 @@ def print_management_page():
     st.title("Gerenciamento Geral")
     st.write("Área dedicada ao gerenciamento de compras, descontos, funcionários e relatórios estratégicos.")
 
-  
     st.session_state.setdefault(
         "funcionarios",
         [
@@ -24,7 +23,6 @@ def print_management_page():
     )
     st.session_state.setdefault("mostrar_relatorio", False)
 
-   
     st.subheader("Minhas Ações")
     col1, col2, col3 = st.columns(3)
 
@@ -37,7 +35,7 @@ def print_management_page():
                     aprovadas += 1
             st.session_state.msg = (
                 f"{aprovadas} compra(s) acima de R$ 5.000 foram aprovadas."
-                if aprovadas else "Nenhuma compra acima de R$ 5.000 encontrada."
+                if aprovadas else "Mensagem do Sistema: Nenhuma compra acima de R$ 5.000 encontrada."
             )
 
     with col2:
@@ -45,13 +43,12 @@ def print_management_page():
             descontos = [c for c in st.session_state.clientes if c.get("desconto", 0) >= 15]
             st.session_state.msg = (
                 f"{len(descontos)} desconto(s) aprovados."
-                if descontos else "Nenhum desconto elegível encontrado."
+                if descontos else "Mensagem do Sistema: Nenhum desconto elegível encontrado."
             )
 
     with col3:
         if st.button("Exibir Relatório de Faturamento"):
             st.session_state.mostrar_relatorio = True
-
 
     if st.session_state.mostrar_relatorio:
         total_faturamento = sum(c.get("compra_total", 0) for c in st.session_state.clientes)

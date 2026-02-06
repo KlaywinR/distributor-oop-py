@@ -2,44 +2,47 @@
 from ..mixins.avaibility_mixin import AvailabilityMixin
 from ..abstracts.abstract_driver import AbstractDriver
 from datetime import date
+from .employee import Employee
 
-class Driver(AvailabilityMixin, AbstractDriver):
+class Driver(Employee, AvailabilityMixin, AbstractDriver):
     """
         - AvailabilityMixin: fornece controle de disponibilidade.
         - AbstractDriver: define a interface base de um motorista.
     """
-    
     MAX_OCCURRANCES = 5
 
-    def __init__(self, id_driver, name, cpf, cnh_category, cnh_expiration,
-                 max_capacity_pallets, region):
-        
-        self.id_driver = id_driver 
-        self._name = name 
-        self.cpf = cpf
-        self.cnh_category =  cnh_category
+    def __init__(self, cpf,id_employee,name,shift, salary, departament, status_employee, admission_date, contract_type, region,  position, meta_monthly, overtime, hours_worked, id_driver, cnh_category, cnh_expiration, 
+                 max_capacity_pallets):
+        super().__init__(
+            name="Klaywin R A Dias",
+            shift=shift,
+            cpf=cpf,
+            salary=salary,
+            id_employee=id_employee,
+            departament=departament,
+            status_employee=status_employee,
+            admission_date=admission_date,
+            contract_type=contract_type,
+            position=position,
+            meta_monthly=meta_monthly,
+            overtime=overtime,
+            hours_worked=hours_worked,
+            region=region
+            
+        )
+       
+        self.cnh_category = cnh_category
         self.__cnh_expiration = cnh_expiration
-        self._status  = "ATIVO"
-        
-        self.__max_capacity_pallets =  max_capacity_pallets
+        self.__max_capacity_pallets = max_capacity_pallets
         self.__region = region
-        
+        self._score = 100
+        self._status = "ATIVO"
         self.__deliveries_assigned = []
         self.__routes_history = []
         self.__infractions = []
         self.__occurances = []
-        self._score = 100
-        
-    @property
-    def name(self):
-        """Retorna o nome do motorista"""
-        return self._name 
-    
-    @property
-    def status(self):
-        """Retorna o  status do motorista"""
-        return self._status
-    
+        self._id_driver = id_driver
+       
     def cnh_is_valid(self) -> bool:
         """ Verifica se a CNH do motorista está válida."""
         return self.__cnh_expiration >= date.today()
@@ -55,13 +58,13 @@ class Driver(AvailabilityMixin, AbstractDriver):
             and self.cnh_is_valid()
             and len(self.__occurances) < self.MAX_OCCURRANCES
         )
-        
+           
     def assign_delivery(self, delivery):
         """ Atribui uma entrega ao motorista."""
         if not self.can_operate():
             raise PermissionError("O motorista não pode operar")
         self.__deliveries_assigned.append(delivery)
-          
+        
     def accept_delivery(self, delivery):
         """O motorista aceita a entrega a ser feita"""
         delivery.start_delivery()
@@ -75,11 +78,11 @@ class Driver(AvailabilityMixin, AbstractDriver):
         delivery.complete()
         self.__routes_history.append(delivery)
         
-    def register_occurance(self, description):
-        """Registra uma ocorrência relacionada ao motorista."""
+    def register_occurance(self, description: str):
+        """Registra uma ocorrência."""
         self.__occurances.append(description)
         self._update_score()
-    
+        
     def _update_score(self):
         """
         A cada ocorrência, a pontuação é reduzida.
@@ -88,15 +91,30 @@ class Driver(AvailabilityMixin, AbstractDriver):
         self._score -= 10
         if self._score <= 50:
             self._block_driver()
-    
+            
     def _block_driver(self):
         """Bloqueia o motorista"""
         self._status = "BLOQUEADO"
+        
+    @property
+    def name(self):
+        """Retorna o nome do motorista"""
+        return self._name 
+    
+    @property
+    def status(self):
+        """Retorna o  status do motorista"""
+        return self._status
     
     def __len__(self):
         """ Retorna a quantidade de entregas atribuídas ao motorista."""
         return len(self.__deliveries_assigned)
-    
+       
     def __str__(self):
-        """Representação textual do motorista"""
-        return f"Motorista: {self._name}, Status: {self._status}"
+        return (
+            f"Motorista: {self.name} | "
+            f"Status: {self._status} | "
+            f"CNH: {self.cnh_category} | "
+            f"Ocorrências: {len(self.__occurances)} | "
+            f"Score: {self._score}"
+        )

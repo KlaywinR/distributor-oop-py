@@ -3,14 +3,32 @@ from .purchase import Purchase
 from .distributor import Distributor
 from ..abstracts.abstract_manager import AbstractManager
 from ..mixins.authorization_mixin import AuthorizationMixin
+from .employee import Employee
+from datetime import date, datetime
 
 
-class Manager(AuthorizationMixin, AbstractManager):
+
+class Manager(AuthorizationMixin, AbstractManager,Employee):
     """ Representa o gerente do sistema."""
     
-    def __init__(self, name="Gerente", registration="123"):
-        """ Inicializa o gerente com nome e matrícula."""
-        super().__init__(name, registration)
+    def __init__(self, name, salary,cpf,id_employee, shift, departament, status_employee, contract_type, region,  position, meta_monthly, overtime, hours_worked,  admission_date: date = date.today()):
+        super().__init__(
+            name="Klaywin R A Dias",
+            shift=shift,
+            cpf=cpf,
+            salary=salary,
+            id_employee=id_employee,
+            departament=departament,
+            status_employee=status_employee,
+            admission_date=admission_date,
+            contract_type=contract_type,
+            position=position,
+            meta_monthly=meta_monthly,
+            overtime=overtime,
+            hours_worked=hours_worked,
+            region=region
+        )
+               
         
     def approve_purchase(self, purchase: Purchase):    
        if purchase.total_value > 50000:

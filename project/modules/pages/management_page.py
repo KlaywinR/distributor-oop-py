@@ -26,7 +26,6 @@ def print_management_page():
     if "msg" not in st.session_state:
         st.session_state.msg = ""
 
-   
     st.subheader("Minhas Ações")
     col1, col2, col3 = st.columns(3)
 
@@ -43,7 +42,7 @@ def print_management_page():
                 if aprovadas else "Nenhuma compra elegível encontrada."
             )
             st.rerun()
-
+            
     with col2:
         if st.button("Aprovar Descontos >= 15%"):
             aprovados = 0
@@ -54,7 +53,7 @@ def print_management_page():
 
             st.session_state.msg = (
                 f"{aprovados} desconto(s) aprovados."
-                if aprovados else "Nenhum desconto elegível."
+                if aprovados else "Mensagem do Sistema: Nenhum desconto elegível."
             )
             st.rerun()
 
@@ -63,7 +62,6 @@ def print_management_page():
             st.session_state.mostrar_relatorio = not st.session_state.mostrar_relatorio
             st.rerun()
 
- 
     if st.session_state.mostrar_relatorio:
         st.subheader("Relatório de Faturamento")
 
@@ -85,8 +83,33 @@ def print_management_page():
         st.bar_chart(df)
 
     st.markdown("---")
-
     
+    st.subheader("Sumário Geral do Gerente")
+
+    total_funcionarios = len(st.session_state.funcionarios)
+    promovidos = sum(1 for f in st.session_state.funcionarios if f["promovido"])
+
+    total_clientes = len(st.session_state.clientes)
+    clientes_ativos = sum(1 for c in st.session_state.clientes if c["ativo"])
+
+    faturamento_total = sum(c["compra_total"] for c in st.session_state.clientes if c["ativo"])
+    compras_aprovadas = sum(1 for c in st.session_state.clientes if c.get("compra_aprovada"))
+    descontos_aprovados = sum(1 for c in st.session_state.clientes if c.get("desconto_aprovado"))
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Funcionários", total_funcionarios)
+    col1.metric("Promovidos", promovidos)
+
+    col2.metric("Clientes Totais", total_clientes)
+    col2.metric("Clientes Ativos", clientes_ativos)
+
+    col3.metric("Faturamento Total", f"R$ {faturamento_total:,.2f}")
+    col3.metric("Compras Aprovadas", compras_aprovadas)
+    col3.metric("Descontos Aprovados", descontos_aprovados)
+
+    st.markdown("---")
+
     st.subheader("Gestão de Employees")
 
     for i in range(len(st.session_state.funcionarios)):
@@ -102,8 +125,7 @@ def print_management_page():
             st.session_state.msg = f"{f['nome']} teve o status alterado."
             st.rerun()
 
-
     if st.session_state.msg:
         st.success(st.session_state.msg)
-
+        
 print_management_page()

@@ -44,7 +44,7 @@ def print_client_page():
         if submitted:
             desconto = client.volume_discount(pallets)
             if desconto > 0:
-                st.success(f"Desconto aplicado! Percentual: {desconto*100:.0f}%")
+                st.success(f"Mensagem do Sistema: O Desconto foi aplicado - Percentual: {desconto*100:.0f}%")
             else:
                 st.info("Mensagem do Sistema: Nenhum desconto disponível para essa quantidade de pallets.")
     

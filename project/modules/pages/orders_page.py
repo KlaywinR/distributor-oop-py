@@ -24,7 +24,7 @@ def print_orders_page():
                 if p["nome"] == produto:
                     novo_pedido["valor_total"] = quantidade * p["preco"]
             st.session_state.reservas.append(novo_pedido)
-            st.success(f"Pedido registrado para {cliente_nome}: {quantidade}x {produto} (Status: {status})")
+            st.success(f"Mensagem do Sistema: Pedido registrado para {cliente_nome}: {quantidade}x {produto} | Status: {status}")
 
     st.markdown("---")
 

@@ -27,7 +27,8 @@ def print_seller_page():
     if "seller" not in st.session_state: 
         
         st.session_state.seller = Seller(
-            name="José de Almeida Fonseca",
+            region="RN",
+            name="José da Almeida Fonseca",
             shift="Manhã",
             cpf="123.456.789-00",
             salary=3500,
@@ -39,8 +40,9 @@ def print_seller_page():
             position="Vendedor",
             meta_monthly=50,
             overtime=5,
-            hours_worked=160,
-            commision_percentual=10
+            commision_percentual=10,
+            hours_worked=9,
+            
         )
         
     beneficios_categoria = {
@@ -65,14 +67,13 @@ def print_seller_page():
     ]
 }
     
-    
     seller = st.session_state.seller
 
     st.subheader("Registrar Cliente Atendido")
     cliente_nome = st.text_input("Nome do Cliente Atendido")
     if st.button("Registrar Atendimento"):
         seller.attend_costumer(cliente_nome)
-        st.success(f"Cliente {cliente_nome} registrado como atendido.")
+        st.success(f"Mensagem do Sistema: Cliente {cliente_nome} registrado como atendido.")
 
   
     st.subheader("Registrar Venda")
@@ -82,7 +83,7 @@ def print_seller_page():
     if st.button("Registrar Venda"):
         seller.make_sale(cliente_venda, produto_venda, qtd_venda)
         seller.add_pallets_sold(qtd_venda)
-        st.success(f"Venda registrada: {qtd_venda}x {produto_venda} para {cliente_venda}")
+        st.success(f"Mensagem do Sistema: Venda registrada: {qtd_venda}x {produto_venda} para {cliente_venda}")
 
 
     st.subheader("Negociar Preço")

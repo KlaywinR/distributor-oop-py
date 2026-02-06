@@ -7,13 +7,24 @@ def print_driver_page():
 
     if "driver" not in st.session_state:
         st.session_state.driver = Driver(
+            id_employee="12345678-667",
+            shift="Manhã",
+            salary="1.600",
+            departament="Departamento de Entregas",
+            status_employee= "ATIVO",
+            admission_date="12/02/2025",
+            contract_type="CLT",
+            position="Entregas de Caminhão/Carreta",
+            meta_monthly= "34",
+            overtime="44",
+            hours_worked="8",
             id_driver=1,
             name="KLAYWIN R. A. DIAS",
             cpf="987.654.321-00",
             cnh_category="D",
             cnh_expiration=date(2027, 5, 20),
             max_capacity_pallets=100,
-            region="SUL"
+            region= "NOrdeste"
         )
     driver = st.session_state.driver
 
@@ -36,20 +47,20 @@ def print_driver_page():
     if st.button("Atribuir Entrega"):
         try:
             driver.assign_delivery(entrega_nome)
-            st.success(f"Entrega '{entrega_nome}' atribuída ao motorista.")
+            st.success(f"Mensagem do Sistema: Entrega '{entrega_nome}' atribuída ao motorista.")
         except PermissionError as e:
             st.error(str(e))
 
     st.subheader("Rejeitar Entrega")
     if st.button("Rejeitar Entrega"):
         driver.reject_delivery()
-        st.warning("Entrega rejeitada e ocorrência registrada.")
+        st.warning("Mensagem do Sistema: Entrega rejeitada e ocorrência registrada.")
 
     st.subheader("Registrar Ocorrência")
     ocorrencia = st.text_input("Descrição da Ocorrência")
     if st.button("Registrar Ocorrência"):
         driver.register_occurance(ocorrencia)
-        st.success(f"Ocorrência registrada: {ocorrencia}")
+        st.success(f"Mensagem do Sistema: Ocorrência registrada: {ocorrencia}")
         
     st.subheader("Histórico de Entregas")
     if st.button("Exibir Histórico"):
@@ -63,8 +74,9 @@ def print_driver_page():
         st.info(str(driver))
         st.info(f"Pontuação atual: {driver._score}")
         st.info(f"Ocorrências registradas: {driver._Driver__occurances}")
-        st.info(f"CPF: {driver.cpf} | CNH: {driver.cnh_category} | ID Motorista: {driver.id_driver}")
+        st.info(f"CPF: {driver._cpf} | CNH: {driver.cnh_category} | ID Motorista: {driver._id_driver}")
       
        
+
 
         

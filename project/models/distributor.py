@@ -48,6 +48,3 @@ class Distributor(ReportMixin, AuditMixin, AbstractDistributor):
         """
         entity.receive_notification("Informação do Sistema: O Sistema foi atualizado")
    
-    def __str__(self):
-        """Retorna representação textual"""
-        return f"Distribuidora {self._name} | Clientes: {len(self._clients)}"

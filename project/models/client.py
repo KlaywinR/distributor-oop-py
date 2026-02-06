@@ -42,6 +42,7 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
     @property
     def credit_limit(self):
         return self.__credit_limit
+    
 
     def buy(self, product, quantity_pallets: int, unit_value_pallet: float) -> float:
         """
@@ -112,7 +113,7 @@ class Client(ReviewMixin, AbstractClient, LoyaltySystem):
     
     def check_promotion(self, product_name):
         produto = self.produtos.get(product_name)
-        if product_name and produto["promocao"] is not None:
+        if product_name and produto.get["promocao"] is not None:
             return produto["promocao"]
         return None
         

@@ -14,11 +14,11 @@ class Seller(Employee, AbstractSeller,CustomerServiceInterface, ReportMixin):
         - SRP: responsabilidade focada em vendas e atendimento;
         - OCP: novas funcionalidades podem ser adicionadas via mixins;
     """
-    def __init__(self, name, shift, cpf, salary,id_employee,departament,
+    def __init__(self,region, name, shift, cpf, salary,id_employee,departament,
                  status_employee,admission_date,contract_type,
                  position,meta_monthly, overtime, hours_worked, commision_percentual):
         
-        super().__init__(name, shift, cpf, salary, id_employee,
+        super().__init__(name,region, shift, cpf, salary, id_employee,
                          departament, status_employee, admission_date,
                          contract_type, position, meta_monthly, overtime, 
                          hours_worked)
@@ -28,6 +28,7 @@ class Seller(Employee, AbstractSeller,CustomerServiceInterface, ReportMixin):
         self.__quantity_invites = []
         self.__comission_percentual = commision_percentual
         self.__sales_made = []
+   
         
     @property
     def meta_monthly(self):
@@ -58,6 +59,7 @@ class Seller(Employee, AbstractSeller,CustomerServiceInterface, ReportMixin):
             "quantity":quantity
         }
         self.__sales_made.append(sale)
+        self.add_pallets_sold(quantity)
         
     def calculate_comissions(self):
         """Calcula comissões do vendedor"""
@@ -99,7 +101,7 @@ class Seller(Employee, AbstractSeller,CustomerServiceInterface, ReportMixin):
     
     def verify_meta_monthly(self):
         """ Verifica se o vendedor atingiu a meta mensal."""
-        return self.meta_monthly <= self.__pallets_sold          
+        return self.pallets_sold >= self.meta_monthly       
 
     def register_service(self, client):
         """Registra um serviço prestado"""

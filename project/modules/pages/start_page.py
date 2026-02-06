@@ -4,7 +4,6 @@ from modules.pages import stock_page
 from modules.pages import orders_page
 from modules.pages import client_page
 
- 
 import pandas as pd
 import random 
 
@@ -26,16 +25,17 @@ def print_start_page():
         <style>
         div.stButton > button {
             
-            height: 3em;
+            height: 4em;
             width: 100%;
             font-size: 18px;
             font-weight: bold;
-            color: black;
+            border-radius: 14px;
             background-color: #fde910;
-            border-radius: 10px;
+            color: black;
+         
         }
         div.stButton > button:hover {
-            background-color: #fde910;
+            background-color: #ffeb3b;
         }
         </style>
     """

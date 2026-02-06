@@ -3,16 +3,17 @@ from datetime import datetime
 from ..abstracts.abstract_employee import AbstractEmployee
 from ..mixins.clock_mixin import ClockMixin
 
+
 class Employee(ClockMixin, AbstractEmployee):
     
-    def __init__(self, name, shift, cpf, salary, id_employee, departament, status_employee, 
+    def __init__(self, region,name, shift, cpf, salary, id_employee, departament, status_employee, 
                  admission_date, contract_type, position, meta_monthly, overtime, hours_worked):
-        self.__name = name 
+        self._name = name 
         self.__shift = shift
         self.__id_employee = id_employee
         self.__departament = departament
         self.__salary = salary 
-        self.__cpf = cpf
+        self._cpf = cpf
         self.__status_employee = status_employee
         self.__admission_date = admission_date
         self.__contract_type = contract_type
@@ -21,20 +22,22 @@ class Employee(ClockMixin, AbstractEmployee):
         self._overtime = overtime
         self.__hours_worked = hours_worked
         self._entry_time = None
+        self.__region =  region
+     
 
     @property
     def name(self):
         """
         Retorna o nome do funcionário.
         """
-        return self.__name 
+        return self._name 
     
     @name.setter
     def name(self, value):
         """Atualiza o nome do funcionário."""
         if not value:
             raise ValueError("Nome Inválido")
-        self.__name = value
+        self._name = value
 
     @property
     def salary(self):

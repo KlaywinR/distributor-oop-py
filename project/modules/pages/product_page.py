@@ -6,7 +6,7 @@ def product_page():
     if st.button("Adicionar Preço Promocional"):
             for p in st.session_state.estoque:
                 p.preco_promocional = p.preco_unitario * 0.9  #10% de desconto
-            st.success("Preço promocional aplicado automaticamente!")
+            st.success("Mensagem do Sistema: Preço promocional aplicado automaticamente!")
 
     if st.session_state.mostrar_form:
         with st.form("form_produto"):
@@ -21,4 +21,4 @@ def product_page():
                     'preco': price,
                     'quantidade': quantity
                 })
-                st.success(f"Produto '{name}' cadastrado com sucesso!")
+                st.success(f"Mensagem do Sistema: Produto '{name}' cadastrado com sucesso!")

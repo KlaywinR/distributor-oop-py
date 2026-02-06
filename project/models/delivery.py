@@ -26,33 +26,34 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         super().__init__(id_delivery)
         self.estimated_time = datetime.now() + timedelta(hours= estimated_hours)
         self.driver = None
-        self.express = express
         self.id_delivery = id_delivery
         self._distance_km = distance_km
         self._express = express
         self.type_vehicle = type_vehicle
-        self.id_vehicle = id_vehicle
+        self._id_vehicle = id_vehicle
         self._status_vehicle = status_vehicle
         self.capacity_vehicle = capacity_vehicle
         self._timeline = []
         self._register_event("Entrega Criada")
     
         
+    def get_timeline(self):
+        return self._timeline
+    
     @property
-    def id_veiculo(self): 
+    def id_vehicle(self): 
         """Retorna o identificador do veículo."""
-        return self.id_vehicle  
+        return self._id_vehicle  
             
     @property
     def type(self): 
         """Retorna o tipo do veículo utilizado na entrega."""
         return self.type_vehicle
-    
          
     @property
     def capacity(self): 
         """Retorna a capacidade do veículo."""
-        return self.id_vehicle   
+        return self.capacity_vehicle   
             
     @property
     def status_vehicle(self): 
@@ -117,10 +118,6 @@ class Delivery(DelayControlMixin, AbstractDelivery):
             "date": datetime.now()
         })
         
-    def get_timeline(self):
-        """Retorna o histórico de eventos da entrega."""
-        return self._timeline
-    
     def start_delivery(self):
       if not self.can_start():
           raise PermissionError("A entrega não pode ser inciada")
@@ -151,11 +148,7 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         
     def notify_costumer(self, message: str):
         print(f"[CLIENTE] Entrega {self.id_delivery}: {message}")
-        
-    def __len__(self):
-        """Retorna a quantidade de ocorrencias registradas"""
-        return len(self._occurances)
-    
+   
     def __str__(self): 
         """Representação textual da entrega"""
         return (

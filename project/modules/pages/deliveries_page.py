@@ -12,12 +12,14 @@ def print_deliveries_page():
             id_delivery=1,
             estimated_hours=5,
             distance_km=120,
-            id_vehicle="XUXU-4569",
-            type_vehicle="CARRETA",
+            id_vehicle="RNGH-4569",
+            type_vehicle="CAMINHÃOO PEQUENO",
             status_vehicle="Disponível",
             capacity_vehicle=2000,
             express=True
+           
         )
+
     delivery = st.session_state.delivery
 
     st.subheader("Atribuir Motorista")
@@ -33,7 +35,7 @@ def print_deliveries_page():
     if st.button("Iniciar Entrega"):
         try:
             delivery.start_delivery()
-            st.success("Entrega iniciada com sucesso!")
+            st.success("Mensagem do Sistema: Entrega iniciada com sucesso!")
         except PermissionError as e:
             st.error(str(e))
 
@@ -41,7 +43,7 @@ def print_deliveries_page():
     if st.button("Finalizar Entrega"):
         try:
             delivery.finish_delivery()
-            st.success("Entrega finalizada com sucesso!")
+            st.success("Mensagem do Sistema: Entrega finalizada com sucesso!")
         except PermissionError as e:
             st.error(str(e))
 

@@ -32,7 +32,7 @@ class Delivery(DelayControlMixin, AbstractDelivery):
         self._express = express
         self.type_vehicle = type_vehicle
         self.id_vehicle = id_vehicle
-        self.status_vehicle = status_vehicle
+        self._status_vehicle = status_vehicle
         self.capacity_vehicle = capacity_vehicle
         self._timeline = []
         self._register_event("Entrega Criada")

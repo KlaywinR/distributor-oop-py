@@ -48,7 +48,6 @@ class Employee(ClockMixin, AbstractEmployee):
             raise ValueError("Salário Inválido")
         self.__salary = value
   
-    
     @property
     def meta_monthly(self):
         """Mostra a mete mensal do funcionario"""

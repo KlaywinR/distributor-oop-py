@@ -14,7 +14,7 @@ class Driver(AvailabilityMixin, AbstractDriver):
     def __init__(self, id_driver, name, cpf, cnh_category, cnh_expiration,
                  max_capacity_pallets, region):
         
-        self.id_driver = id_driver
+        self.id_driver = id_driver 
         self._name = name 
         self.cpf = cpf
         self.cnh_category =  cnh_category

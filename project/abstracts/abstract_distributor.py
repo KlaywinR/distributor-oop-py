@@ -1,6 +1,7 @@
 
 from project.interfaces.distributor_interface import DistributorInterface
 from abc import ABC
+from models.stock.stock import Stock
     
 class AbstractDistributor(DistributorInterface, ABC):
     
@@ -12,7 +13,7 @@ class AbstractDistributor(DistributorInterface, ABC):
         self._cnpj = cnpj
         self._clients = []
         self._employees = []
-        self._stocks = []
+        self._stocks = [Stock]
         self._purchases = []
         self._deliveries =  []
     
